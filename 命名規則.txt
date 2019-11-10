@@ -1,0 +1,24 @@
+～命名規則～
+
+定数：大文字 <例> KOMACHI_WIDTH <備考> defineはcpp内に書こう
+
+変数：スネークケース <例> komachi_pos_x
+
+グローバル変数：g_を付ける <例> g_komachi
+
+ポインタ変数：p_を付ける <例> p_kitty
+
+グローバルポインタ変数：gp_を付ける <例>gp_sakura
+
+関数：頭大文字 <例> Komachi_Draw()
+
+Get関数Set関数：最初に書く <例> Get_Komachi_HP()
+
+class：先頭大文字 <例> King_dedede <備考>列挙も
+
+ヘッダファイルにおいてはいけないもの
+定数定義 列挙enum class宣言  
+
+～プロジェクトファイルの設定～
+
+x64 DEBUG マルチバイト マルチスレッドMT
