@@ -52,6 +52,5 @@ void Progress_Draw(void)
 	Texture_Load();																													//テクスチャロード
 	Sprite_Draw(g_progressTex[PROGRESS_FRAME], (SCREEN_WIDTH - PROGRESS_FRAME_WIDTH) / 2, PROGRESSFRAME_POSITION_Y);
 	Sprite_Draw(g_progressTex[PROGRESS_ICON],((SCREEN_WIDTH - PROGRESS_FRAME_WIDTH) / 2 + FRAMESPASE_SIZE) + PROGRESS_BAR_WIDTH * g_progress,PROGRESSFRAME_POSITION_Y+PROGRESS_FRAME_HIGHT/2);
-
 }
 

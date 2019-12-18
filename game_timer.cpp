@@ -1,112 +1,133 @@
 //★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡
 //
 //
-//	処理[Title_Logo.cpp]
+//	ゲームタイマー処理[game_timer.cpp]
 //
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //                                                               作成者 矢吹一俊
-//                                                               作成日 11/11(月)
+//                                                               作成日 11/24(日)
 //★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡
-#include "common.h"
 #include "sprite.h"
 #include "texture.h"
-#include "d3dx9.h"
+#include "common.h"
+#include "camera.h"
+#include <d3dx9.h>
+#include "start_count.h"
 
 
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
 //	定数定義
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-static const int TITLE_LOGO_WIDTH = 483;
-static const int TITLE_LOGO_HEIGHT = 246;
 
 
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
 //	クラス宣言
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-class Title_Logo {
+class Game_Timer {
 private:
-	D3DXVECTOR2 m_pos;
-	int m_tex;
+	int number_tex;
+	int time_gage_tex;
+	float time_second;
+	D3DXVECTOR2 pos;
+	static const float POS_Y;
+	static const float POS_X;
+	static const int TEX_WIDTH = 100;
+	static const int TEX_HEIGHT = 100;
+	enum TIME_MODE {
+		MODE_WAIT,
+		MODE_COUNT,
+		MODE_END
+	}mode;
 public:
-	Title_Logo(void);
-	~Title_Logo(void);
+	Game_Timer();
+	~Game_Timer();
 	void Update(void);
 	void Draw(void);
 };
 
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
+//	プロトタイプ宣言
+//☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
+
+
+//☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
 //	グローバル変数宣言
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-static Title_Logo* gp_title_logo = nullptr;
+const float Game_Timer::POS_X = SCREEN_WIDTH * 0.1f;
+const float Game_Timer::POS_Y = SCREEN_HEIGHT * 0.5f;
+
+static Game_Timer* gp_game_timer = nullptr;
 
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
 //	初期化処理
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-void Title_Logo_Init(void)
+void Game_Timer_Init(void)
 {
-	gp_title_logo = new Title_Logo;
+	gp_game_timer = new Game_Timer;
 }
 
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
 //	終了処理
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-void Title_Logo_Uninit(void)
+void Game_Timer_Uninit(void)
 {
-	delete gp_title_logo;
+	delete gp_game_timer;
 }
 
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
 //	更新処理
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-void Title_Logo_Update(void)
+void Game_Timer_Update(void)
 {
-	gp_title_logo->Update();
+	gp_game_timer->Update();
 }
 
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
 //	描画処理
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-void Title_Logo_Draw(void)
+void Game_Timer_Draw(void)
 {
-	gp_title_logo->Draw();
+
+}
+//☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
+//	Game_Timerクラス コンストラクタ
+//☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
+Game_Timer::Game_Timer(void):time_second(0.0f),pos(POS_X, POS_Y)
+{
+
+
 }
 
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-//	Title_Logo コンストラクタ
+//	Game_Timerクラス デストラクタ
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-Title_Logo::Title_Logo(void)
+Game_Timer::~Game_Timer(void)
 {
-	m_tex = Texture_SetLoadFile("Asset/Texture/Title_Logo.png", TITLE_LOGO_WIDTH, TITLE_LOGO_HEIGHT);
-	Texture_Load();
+	Texture_Destroy(&gp_game_timer->number_tex, 1);
+	Texture_Destroy(&gp_game_timer->time_gage_tex, 1);
 
-	//  中心座標
-	m_pos = D3DXVECTOR2(SCREEN_WIDTH * 0.5f, SCREEN_HEIGHT * 0.5f);
+}
+
+
+//☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
+//	Game_Timerクラス 更新関数
+//☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
+void Game_Timer::Update(void)
+{
+	if (Is_Start_Count_End() && mode != MODE_COUNT) {
+		mode = MODE_COUNT;
+	}
+	if (mode == MODE_COUNT) {
+		
+
+
+	}
 }
 
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-//	Title_Logo デストラクタ
+//	Game_Timerクラス 描画関数
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-Title_Logo::~Title_Logo(void)
+void Game_Timer::Draw(void)
 {
-	Texture_Destroy(&m_tex, 1);
-}
 
-//☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-//	Title_Logo更新処理
-//☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-void Title_Logo::Update(void)
-{
-	//  座標変えるのかなー
-}
-
-//☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-//	Title_Logo描画処理
-//☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-void Title_Logo::Draw(void)
-{
-	//  中心座標→左上座標
-	float tx, ty;
-	tx = m_pos.x - (TITLE_LOGO_WIDTH * 0.5f);
-	ty = m_pos.y - (TITLE_LOGO_HEIGHT * 0.5f);
-	Sprite_Draw(m_tex, tx, ty);
 }

@@ -1,112 +1,93 @@
 //★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡
 //
 //
-//	処理[Title_Logo.cpp]
+//	処理[Title_manager.cpp]
 //
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //                                                               作成者 矢吹一俊
-//                                                               作成日 11/11(月)
+//                                                               作成日 12/17(火)
 //★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡
-#include "common.h"
-#include "sprite.h"
-#include "texture.h"
-#include "d3dx9.h"
+#include "input.h"
+#include "fade.h"
+#include "scene.h"
 
+#include <d3d9.h>
 
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
 //	定数定義
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-static const int TITLE_LOGO_WIDTH = 483;
-static const int TITLE_LOGO_HEIGHT = 246;
-
 
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-//	クラス宣言
+//	クラス定義
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-class Title_Logo {
+class Title_Manager
+{
 private:
-	D3DXVECTOR2 m_pos;
-	int m_tex;
+	//	定数定義
+	static const int FADE_FRAME = 60;
+	static const D3DCOLOR FADE_COLOR;
+	//	変数定義
+	bool m_is_fade;
 public:
-	Title_Logo(void);
-	~Title_Logo(void);
-	void Update(void);
-	void Draw(void);
+	Title_Manager();
+	virtual ~Title_Manager();
+	void Update();
 };
 
+const D3DCOLOR Title_Manager::FADE_COLOR = D3DCOLOR_RGBA(0,0,0,0);
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
 //	グローバル変数宣言
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-static Title_Logo* gp_title_logo = nullptr;
+static Title_Manager* gp_manager = nullptr;
 
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
 //	初期化処理
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-void Title_Logo_Init(void)
+void Title_Manager_Init(void)
 {
-	gp_title_logo = new Title_Logo;
+	gp_manager = new Title_Manager;
 }
 
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
 //	終了処理
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-void Title_Logo_Uninit(void)
+void Title_Manager_Uninit(void)
 {
-	delete gp_title_logo;
+	delete gp_manager;
 }
 
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
 //	更新処理
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-void Title_Logo_Update(void)
+void Title_Manager_Update(void)
 {
-	gp_title_logo->Update();
+	gp_manager->Update();
 }
 
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-//	描画処理
+//	コンストラクタ
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-void Title_Logo_Draw(void)
+Title_Manager::Title_Manager(void):m_is_fade(false)
 {
-	gp_title_logo->Draw();
 }
 
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-//	Title_Logo コンストラクタ
+//	デストラクタ
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-Title_Logo::Title_Logo(void)
+Title_Manager::~Title_Manager(void)
 {
-	m_tex = Texture_SetLoadFile("Asset/Texture/Title_Logo.png", TITLE_LOGO_WIDTH, TITLE_LOGO_HEIGHT);
-	Texture_Load();
-
-	//  中心座標
-	m_pos = D3DXVECTOR2(SCREEN_WIDTH * 0.5f, SCREEN_HEIGHT * 0.5f);
 }
 
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-//	Title_Logo デストラクタ
+//	更新処理
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-Title_Logo::~Title_Logo(void)
+void Title_Manager::Update(void)
 {
-	Texture_Destroy(&m_tex, 1);
-}
-
-//☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-//	Title_Logo更新処理
-//☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-void Title_Logo::Update(void)
-{
-	//  座標変えるのかなー
-}
-
-//☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-//	Title_Logo描画処理
-//☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-void Title_Logo::Draw(void)
-{
-	//  中心座標→左上座標
-	float tx, ty;
-	tx = m_pos.x - (TITLE_LOGO_WIDTH * 0.5f);
-	ty = m_pos.y - (TITLE_LOGO_HEIGHT * 0.5f);
-	Sprite_Draw(m_tex, tx, ty);
+	if (Keyboard_IsTrigger(DIK_SPACE) && !m_is_fade) {
+		Fade_Start(FADE_FRAME, FADE_COLOR, true);
+		m_is_fade = true;
+	}
+	if (m_is_fade && !Fade_IsFade()) {
+		Set_Scene(SCENE_MENU);
+	}
 }

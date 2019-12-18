@@ -1,112 +1,139 @@
 //★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡
 //
 //
-//	処理[Title_Logo.cpp]
+//	処理[map.cpp]
 //
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //                                                               作成者 矢吹一俊
-//                                                               作成日 11/11(月)
+//                                                               作成日 11/18(月)
 //★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡
-#include "common.h"
-#include "sprite.h"
-#include "texture.h"
-#include "d3dx9.h"
-
+#include "water.h"
+#include "ground.h"
 
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
 //	定数定義
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-static const int TITLE_LOGO_WIDTH = 483;
-static const int TITLE_LOGO_HEIGHT = 246;
 
 
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
 //	クラス宣言
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-class Title_Logo {
-private:
-	D3DXVECTOR2 m_pos;
-	int m_tex;
+class Map {
 public:
-	Title_Logo(void);
-	~Title_Logo(void);
-	void Update(void);
-	void Draw(void);
+	virtual void Draw(void) = 0;
+	virtual void Update(void) = 0;
 };
+
+class Map_Sprint : public Map {
+private:
+	static int WATER_MAX;
+public:
+	Map_Sprint(void);
+	~Map_Sprint(void);
+	void Draw(void);
+	void Update(void);
+};
+
+//☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
+//	プロトタイプ宣言
+//☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
+
 
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
 //	グローバル変数宣言
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-static Title_Logo* gp_title_logo = nullptr;
+int Map_Sprint::WATER_MAX = 10;
+
+static Map* gp_map = nullptr;
 
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
 //	初期化処理
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-void Title_Logo_Init(void)
+void Map_Init(void)
 {
-	gp_title_logo = new Title_Logo;
+	gp_map = new Map_Sprint;
 }
 
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
 //	終了処理
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-void Title_Logo_Uninit(void)
+void Map_Uninit(void)
 {
-	delete gp_title_logo;
+	delete gp_map;
 }
 
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
 //	更新処理
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-void Title_Logo_Update(void)
+void Map_Update(void)
 {
-	gp_title_logo->Update();
+	gp_map->Update();
 }
 
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
 //	描画処理
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-void Title_Logo_Draw(void)
+void Map_Draw(void)
 {
-	gp_title_logo->Draw();
+	gp_map->Draw();
 }
 
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-//	Title_Logo コンストラクタ
+//	Map_Sprint コンストラクタ
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-Title_Logo::Title_Logo(void)
+Map_Sprint::Map_Sprint(void)
 {
-	m_tex = Texture_SetLoadFile("Asset/Texture/Title_Logo.png", TITLE_LOGO_WIDTH, TITLE_LOGO_HEIGHT);
-	Texture_Load();
-
-	//  中心座標
-	m_pos = D3DXVECTOR2(SCREEN_WIDTH * 0.5f, SCREEN_HEIGHT * 0.5f);
+	Water_Init();
+	Ground_Init();
 }
 
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-//	Title_Logo デストラクタ
+//	Map_Sprint デストラクタ
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-Title_Logo::~Title_Logo(void)
+Map_Sprint::~Map_Sprint(void)
 {
-	Texture_Destroy(&m_tex, 1);
+	Ground_Uninit();
+	Water_Uninit();
 }
 
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-//	Title_Logo更新処理
+//	Map_Sprint更新処理
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-void Title_Logo::Update(void)
+void Map_Sprint::Update(void)
 {
-	//  座標変えるのかなー
+	Water_Update();
 }
 
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-//	Title_Logo描画処理
+//	Map_Sprint描画処理
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-void Title_Logo::Draw(void)
+void Map_Sprint::Draw(void)
 {
-	//  中心座標→左上座標
-	float tx, ty;
-	tx = m_pos.x - (TITLE_LOGO_WIDTH * 0.5f);
-	ty = m_pos.y - (TITLE_LOGO_HEIGHT * 0.5f);
-	Sprite_Draw(m_tex, tx, ty);
+	D3DXMATRIX mtxW, mtxT;
+
+	D3DXMatrixIdentity(&mtxW);
+
+	Water_Draw(&mtxW);
+
+	D3DXMatrixTranslation(&mtxT,1.0f, 0.0f, 0.0f);
+
+	mtxW = mtxT;
+
+	//Ground_Draw(&mtxW);
+
+	for (int i = -20; i < 20; i++) {
+		for (int j = -10; j < 500; j++) {
+			D3DXMatrixTranslation(&mtxT, i, 0.0f, j);
+			mtxW = mtxT;
+			Ground_Draw(&mtxW);
+		}
+	}
+
+	for (int i = -10; i < 300; i++) {
+		D3DXMatrixTranslation(&mtxT, 0.0f, 0.01f, i*8);
+		mtxW = mtxT;
+		Water_Draw(&mtxW);
+	}
+
+
 }

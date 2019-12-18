@@ -1,7 +1,7 @@
 //★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡
 //
 //
-//	処理[Title_Logo.cpp]
+//	処理[Menu_Logo.cpp]
 //
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //                                                               作成者 矢吹一俊
@@ -16,20 +16,20 @@
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
 //	定数定義
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-static const int TITLE_LOGO_WIDTH = 483;
-static const int TITLE_LOGO_HEIGHT = 246;
+static const int LOGO_WIDTH = 483;
+static const int LOGO_HEIGHT = 246;
 
 
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
 //	クラス宣言
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-class Title_Logo {
+class Menu_Logo {
 private:
 	D3DXVECTOR2 m_pos;
 	int m_tex;
 public:
-	Title_Logo(void);
-	~Title_Logo(void);
+	Menu_Logo(void);
+	~Menu_Logo(void);
 	void Update(void);
 	void Draw(void);
 };
@@ -37,46 +37,46 @@ public:
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
 //	グローバル変数宣言
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-static Title_Logo* gp_title_logo = nullptr;
+static Menu_Logo* gp_logo = nullptr;
 
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
 //	初期化処理
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-void Title_Logo_Init(void)
+void Menu_Logo_Init(void)
 {
-	gp_title_logo = new Title_Logo;
+	gp_logo = new Menu_Logo;
 }
 
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
 //	終了処理
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-void Title_Logo_Uninit(void)
+void Menu_Logo_Uninit(void)
 {
-	delete gp_title_logo;
+	delete gp_logo;
 }
 
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
 //	更新処理
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-void Title_Logo_Update(void)
+void Menu_Logo_Update(void)
 {
-	gp_title_logo->Update();
+	gp_logo->Update();
 }
 
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
 //	描画処理
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-void Title_Logo_Draw(void)
+void Menu_Logo_Draw(void)
 {
-	gp_title_logo->Draw();
+	gp_logo->Draw();
 }
 
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-//	Title_Logo コンストラクタ
+//	Menu_Logo コンストラクタ
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-Title_Logo::Title_Logo(void)
+Menu_Logo::Menu_Logo(void)
 {
-	m_tex = Texture_SetLoadFile("Asset/Texture/Title_Logo.png", TITLE_LOGO_WIDTH, TITLE_LOGO_HEIGHT);
+	m_tex = Texture_SetLoadFile("Asset/Texture/Menu_Logo.png", LOGO_WIDTH, LOGO_HEIGHT);
 	Texture_Load();
 
 	//  中心座標
@@ -86,7 +86,7 @@ Title_Logo::Title_Logo(void)
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
 //	Title_Logo デストラクタ
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-Title_Logo::~Title_Logo(void)
+Menu_Logo::~Menu_Logo(void)
 {
 	Texture_Destroy(&m_tex, 1);
 }
@@ -94,7 +94,7 @@ Title_Logo::~Title_Logo(void)
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
 //	Title_Logo更新処理
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-void Title_Logo::Update(void)
+void Menu_Logo::Update(void)
 {
 	//  座標変えるのかなー
 }
@@ -102,11 +102,11 @@ void Title_Logo::Update(void)
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
 //	Title_Logo描画処理
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-void Title_Logo::Draw(void)
+void Menu_Logo::Draw(void)
 {
 	//  中心座標→左上座標
 	float tx, ty;
-	tx = m_pos.x - (TITLE_LOGO_WIDTH * 0.5f);
-	ty = m_pos.y - (TITLE_LOGO_HEIGHT * 0.5f);
+	tx = m_pos.x - (LOGO_WIDTH * 0.5f);
+	ty = m_pos.y - (LOGO_HEIGHT * 0.5f);
 	Sprite_Draw(m_tex, tx, ty);
 }

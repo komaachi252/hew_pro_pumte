@@ -12,4 +12,4 @@ void Progress_Uninit(void);
 void Progress_Update(void);
 void Progress_Draw(void);
 
-#endif PROGRESS_H_
+#endif //PROGRESS_H_
