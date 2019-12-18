@@ -29,6 +29,8 @@
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
 void Camera_Init(void);	//初期化関数
 void Camera_Uninit(void);	//終了処理関数
-void Camera_Set(void);	//カメラ プロジェクション行列設定
+void Camera_Update(void);
+//void Camera_Set(void);	//カメラ プロジェクション行列設定
 void Camera_Set(D3DXVECTOR3* eye, D3DXVECTOR3* at, D3DXVECTOR3* up);  // カメラ座標入力用
+void Camera_2D(void);
 #endif

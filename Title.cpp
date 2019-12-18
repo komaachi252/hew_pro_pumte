@@ -9,8 +9,10 @@
 //★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡
 
 //  ここにタイトル用ヘッダをインクルード
-
-
+#include "Title_Logo.h"
+#include "camera.h"
+#include "Title_manager.h"
+#include "fade.h"
 
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
 //	定数定義
@@ -30,11 +32,14 @@ void Title_Initialize(void)
 	// --------------------------------
 	//  ここにタイトルの初期化関数を記述
 	// --------------------------------
-	//  Jkimouto_Initialize();
+	//  JKimouto_Initialize();
 	//  Mama_Initialize();
+	Title_Logo_Init();
+	Title_Manager_Init();
 
-
-
+	//	タイトル画面は2D
+	Camera_2D();
+	Fade_Start(60, D3DCOLOR_RGBA(0, 0, 0, 0), false);
 }
 
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
@@ -45,8 +50,8 @@ void Title_Update(void)
 	// --------------------------------
 	//  ここにタイトルの更新関数を記述
 	// --------------------------------
-
-
+	Title_Logo_Update();
+	Title_Manager_Update();
 }
 
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
@@ -57,7 +62,7 @@ void Title_Draw(void)
 	// --------------------------------
 	//  ここにタイトルの描画関数を記述
 	// --------------------------------
-
+	Title_Logo_Draw();
 
 }
 
@@ -69,6 +74,6 @@ void Title_Finalize(void)
 	// --------------------------------
 	//  ここにタイトルの終了関数を記述
 	// --------------------------------
-
-
+	Title_Logo_Uninit();
+	Title_Manager_Uninit();
 }
