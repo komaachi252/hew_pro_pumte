@@ -1,7 +1,7 @@
 //★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡
 //
 //
-//	処理[Menu_manager.cpp]
+//	処理[Tutorial_manager.cpp]
 //
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //                                                               作成者 矢吹一俊
@@ -20,7 +20,7 @@
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
 //	クラス定義
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-class Menu_Manager
+class Tutorial_Manager
 {
 private:
 	//	定数定義
@@ -29,29 +29,29 @@ private:
 	//	変数定義
 	bool m_is_fade;
 public:
-	Menu_Manager();
-	virtual ~Menu_Manager();
+	Tutorial_Manager();
+	virtual ~Tutorial_Manager();
 	void Update();
 };
 
-const D3DCOLOR Menu_Manager::FADE_COLOR = D3DCOLOR_RGBA(0,0,0,0);
+const D3DCOLOR Tutorial_Manager::FADE_COLOR = D3DCOLOR_RGBA(0,0,0,0);
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
 //	グローバル変数宣言
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-static Menu_Manager* gp_manager = nullptr;
+static Tutorial_Manager* gp_manager = nullptr;
 
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
 //	初期化処理
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-void Menu_Manager_Init(void)
+void Tutorial_Manager_Init(void)
 {
-	gp_manager = new Menu_Manager;
+	gp_manager = new Tutorial_Manager;
 }
 
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
 //	終了処理
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-void Menu_Manager_Uninit(void)
+void Tutorial_Manager_Uninit(void)
 {
 	delete gp_manager;
 }
@@ -59,7 +59,7 @@ void Menu_Manager_Uninit(void)
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
 //	更新処理
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-void Menu_Manager_Update(void)
+void Tutorial_Manager_Update(void)
 {
 	gp_manager->Update();
 }
@@ -67,27 +67,27 @@ void Menu_Manager_Update(void)
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
 //	コンストラクタ
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-Menu_Manager::Menu_Manager(void):m_is_fade(false)
+Tutorial_Manager::Tutorial_Manager(void):m_is_fade(false)
 {
 }
 
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
 //	デストラクタ
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-Menu_Manager::~Menu_Manager(void)
+Tutorial_Manager::~Tutorial_Manager(void)
 {
 }
 
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
 //	更新処理
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-void Menu_Manager::Update(void)
+void Tutorial_Manager::Update(void)
 {
 	if (Keyboard_IsTrigger(DIK_SPACE) && !m_is_fade) {
 		Fade_Start(FADE_FRAME, FADE_COLOR, true);
 		m_is_fade = true;
 	}
 	if (m_is_fade && !Fade_IsFade()) {
-		Set_Scene(SCENE_TUTORIAL);
+		Set_Scene(SCENE_GAME);
 	}
 }

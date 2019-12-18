@@ -1,93 +1,112 @@
 //★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡
 //
 //
-//	処理[Menu_manager.cpp]
+//	処理[Tutorial_Logo.cpp]
 //
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //                                                               作成者 矢吹一俊
-//                                                               作成日 12/17(火)
+//                                                               作成日 11/11(月)
 //★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡
-#include "input.h"
-#include "fade.h"
-#include "scene.h"
+#include "common.h"
+#include "sprite.h"
+#include "texture.h"
+#include "d3dx9.h"
 
-#include <d3d9.h>
 
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
 //	定数定義
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
+static const int LOGO_WIDTH = 483;
+static const int LOGO_HEIGHT = 246;
+
 
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-//	クラス定義
+//	クラス宣言
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-class Menu_Manager
-{
+class Tutorial_Logo {
 private:
-	//	定数定義
-	static const int FADE_FRAME = 60;
-	static const D3DCOLOR FADE_COLOR;
-	//	変数定義
-	bool m_is_fade;
+	D3DXVECTOR2 m_pos;
+	int m_tex;
 public:
-	Menu_Manager();
-	virtual ~Menu_Manager();
-	void Update();
+	Tutorial_Logo(void);
+	~Tutorial_Logo(void);
+	void Update(void);
+	void Draw(void);
 };
 
-const D3DCOLOR Menu_Manager::FADE_COLOR = D3DCOLOR_RGBA(0,0,0,0);
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
 //	グローバル変数宣言
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-static Menu_Manager* gp_manager = nullptr;
+static Tutorial_Logo* gp_logo = nullptr;
 
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
 //	初期化処理
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-void Menu_Manager_Init(void)
+void Tutorial_Logo_Init(void)
 {
-	gp_manager = new Menu_Manager;
+	gp_logo = new Tutorial_Logo;
 }
 
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
 //	終了処理
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-void Menu_Manager_Uninit(void)
+void Tutorial_Logo_Uninit(void)
 {
-	delete gp_manager;
+	delete gp_logo;
 }
 
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
 //	更新処理
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-void Menu_Manager_Update(void)
+void Tutorial_Logo_Update(void)
 {
-	gp_manager->Update();
+	gp_logo->Update();
 }
 
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-//	コンストラクタ
+//	描画処理
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-Menu_Manager::Menu_Manager(void):m_is_fade(false)
+void Tutorial_Logo_Draw(void)
 {
+	gp_logo->Draw();
 }
 
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-//	デストラクタ
+//	Tutorial_Logo コンストラクタ
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-Menu_Manager::~Menu_Manager(void)
+Tutorial_Logo::Tutorial_Logo(void)
 {
+	m_tex = Texture_SetLoadFile("Asset/Texture/Tutorial_Logo.png", LOGO_WIDTH, LOGO_HEIGHT);
+	Texture_Load();
+
+	//  中心座標
+	m_pos = D3DXVECTOR2(SCREEN_WIDTH * 0.5f, SCREEN_HEIGHT * 0.5f);
 }
 
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-//	更新処理
+//	Tutorial_Logo デストラクタ
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-void Menu_Manager::Update(void)
+Tutorial_Logo::~Tutorial_Logo(void)
 {
-	if (Keyboard_IsTrigger(DIK_SPACE) && !m_is_fade) {
-		Fade_Start(FADE_FRAME, FADE_COLOR, true);
-		m_is_fade = true;
-	}
-	if (m_is_fade && !Fade_IsFade()) {
-		Set_Scene(SCENE_TUTORIAL);
-	}
+	Texture_Destroy(&m_tex, 1);
+}
+
+//☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
+//	Tutorial_Logo更新処理
+//☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
+void Tutorial_Logo::Update(void)
+{
+	//  座標変えるのかなー
+}
+
+//☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
+//	Tutorial_Logo描画処理
+//☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
+void Tutorial_Logo::Draw(void)
+{
+	//  中心座標→左上座標
+	float tx, ty;
+	tx = m_pos.x - (LOGO_WIDTH * 0.5f);
+	ty = m_pos.y - (LOGO_HEIGHT * 0.5f);
+	Sprite_Draw(m_tex, tx, ty);
 }

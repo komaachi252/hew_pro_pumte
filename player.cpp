@@ -59,7 +59,8 @@ static float g_acceralation = 0.0f;
 
 static int frame;
 
-static float g_angle = 0.0f;
+static float g_angle = D3DXToRadian(180);
+//static float g_angle = 0.0f;
 static int count = 0;
 static int countl = 0;
 static int countr = 0;
@@ -82,7 +83,7 @@ void Player_Init(void)
 	//LPDIRECT3DDEVICE9 pDevice = GetDevice();
 
 	//tex = Model_Load("gradriel.x");
-	tex = Model_Load("ft.x");
+	tex = Model_Load("Wboat.x");
 	//tex = Model_Load("boat1.x");
 	//tex = Model_Load("MetaKnight.x");
 	//tex = Model_Load("cart.x");
