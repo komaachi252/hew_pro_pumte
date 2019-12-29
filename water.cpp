@@ -10,6 +10,7 @@
 #include "sprite.h"
 #include "texture.h"
 #include "direct3d.h"
+#include "water.h"
 #include <d3dx9.h>
 
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
@@ -34,77 +35,73 @@ typedef struct WaterVertex_tag {
 //	プロトタイプ宣言
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
 
-
-//☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-//	グローバル変数宣言
-//☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-static const float V_SPEED = 0.01f;
-static int g_tex = 0;
-
-static WaterVertex g_vertices[] = {
-{ D3DXVECTOR3(-4.0f, 0.5f, 4.0f), D3DXVECTOR3(0.0f, 1.0f, 0.0f), D3DCOLOR_RGBA(255,255,255,255), D3DXVECTOR2(0.0f,0.0f) },
-{ D3DXVECTOR3(4.0f, 0.5f, 4.0f), D3DXVECTOR3(0.0f, 1.0f, 0.0f), D3DCOLOR_RGBA(255,255,255,255), D3DXVECTOR2(1.0f,0.0f) },
-{ D3DXVECTOR3(-4.0f, 0.5f,-4.0f), D3DXVECTOR3(0.0f, 1.0f, 0.0f), D3DCOLOR_RGBA(255,255,255,255), D3DXVECTOR2(0.0f,1.0f) },
-{ D3DXVECTOR3(-4.0f, 0.5f,-4.0f), D3DXVECTOR3(0.0f, 1.0f, 0.0f), D3DCOLOR_RGBA(255,255,255,255), D3DXVECTOR2(0.0f,1.0f) },
-{ D3DXVECTOR3(4.0f, 0.5f, 4.0f), D3DXVECTOR3(0.0f, 1.0f, 0.0f), D3DCOLOR_RGBA(255,255,255,255),  D3DXVECTOR2(1.0f,0.0f) },
-{ D3DXVECTOR3(4.0f, 0.5f,-4.0f), D3DXVECTOR3(0.0f, 1.0f, 0.0f), D3DCOLOR_RGBA(255,255,255,255), D3DXVECTOR2(1.0f,1.0f) },
-};
-/*
-static WaterVertex g_vertices[] = {
-{ D3DXVECTOR3(-0.5f, 0.5f, 0.5f), D3DXVECTOR3(0.0f, 1.0f, 0.0f), D3DCOLOR_RGBA(255,255,255,255), D3DXVECTOR2(0.0f,0.0f) },
-{ D3DXVECTOR3(0.5f, 0.5f, 0.5f), D3DXVECTOR3(0.0f, 1.0f, 0.0f), D3DCOLOR_RGBA(255,255,255,255), D3DXVECTOR2(1.0f,0.0f) },
-{ D3DXVECTOR3(-0.5f, 0.5f,-0.5f), D3DXVECTOR3(0.0f, 1.0f, 0.0f), D3DCOLOR_RGBA(255,255,255,255), D3DXVECTOR2(0.0f,1.0f) },
-{ D3DXVECTOR3(-0.5f, 0.5f,-0.5f), D3DXVECTOR3(0.0f, 1.0f, 0.0f), D3DCOLOR_RGBA(255,255,255,255), D3DXVECTOR2(0.0f,1.0f) },
-{ D3DXVECTOR3(0.5f, 0.5f, 0.5f), D3DXVECTOR3(0.0f, 1.0f, 0.0f), D3DCOLOR_RGBA(255,255,255,255),  D3DXVECTOR2(1.0f,0.0f) },
-{ D3DXVECTOR3(0.5f, 0.5f,-0.5f), D3DXVECTOR3(0.0f, 1.0f, 0.0f), D3DCOLOR_RGBA(255,255,255,255), D3DXVECTOR2(1.0f,1.0f) },
-};
-*/
-
-
-static int VERTEX_MAX = sizeof(g_vertices) / sizeof(g_vertices[0]);
+//static int VERTEX_MAX = sizeof(g_vertices) / sizeof(g_vertices[0]);
 
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
 //	初期化処理
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-void Water_Init(void)
+Water::Water(void)
 {
-	g_tex = Texture_SetLoadFile("Asset/Texture/kawa.jpg", TEX_WIDTH, TEX_HEIGHT);
-	Texture_Load();
+	//  D3Dデバイスの取得
+	LPDIRECT3DDEVICE9 pDevice = GetDevice();
+
+	//  頂点バッファの作成
+	pDevice->CreateVertexBuffer(sizeof(WaterVertex) * 4, D3DUSAGE_WRITEONLY, FVF_WATER, D3DPOOL_MANAGED, &m_vertex_buffer_ptr, nullptr);
+	pDevice->CreateVertexBuffer(sizeof(WaterVertex) * 4, D3DUSAGE_WRITEONLY, FVF_WATER, D3DPOOL_MANAGED, &m_vertex_buffer_ptr, nullptr);
+
+	WaterVertex* vtx_ptr;
+	m_vertex_buffer_ptr->Lock(0, 0, (void**)&vtx_ptr, D3DLOCK_DISCARD);
+
+	vtx_ptr[0].position = D3DXVECTOR3(-5.0f, 0.0f, 5.0f);
+	vtx_ptr[1].position = D3DXVECTOR3( 5.0f, 0.0f, 5.0f);
+	vtx_ptr[2].position = D3DXVECTOR3(-5.0f, 0.0f,-5.0f);
+	vtx_ptr[3].position = D3DXVECTOR3( 5.0f, 0.0f,-5.0f);
+
+	vtx_ptr[0].uv = D3DXVECTOR2(0.0f, 0.0f);
+	vtx_ptr[1].uv = D3DXVECTOR2(1.0f, 0.0f);
+	vtx_ptr[2].uv = D3DXVECTOR2(0.0f, 1.0f);
+	vtx_ptr[3].uv = D3DXVECTOR2(1.0f, 1.0f);
+
+	vtx_ptr[0].normal = D3DXVECTOR3(0.0f, 1.0f, 0.0f);
+
+	for (int i = 0; i < 4; i++) {
+		vtx_ptr[i].color = D3DCOLOR_RGBA(255,255,255,255);
+	}
+
+	m_vertex_buffer_ptr->Unlock();
+
 }
 
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
 //	終了処理
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-void Water_Uninit(void)
+Water::~Water(void)
 {
-	Texture_Destroy(&g_tex, 1);
+	if (m_vertex_buffer_ptr) {
+		m_vertex_buffer_ptr->Release();
+		m_vertex_buffer_ptr = nullptr;
+	}
 }
 
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
 //	更新処理
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-void Water_Update(void)
-{
-	for (int i = 0; i < VERTEX_MAX; i++) {
-		g_vertices[i].uv.y -= V_SPEED;
-	}
-}
+
 
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
 //	描画処理
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-void Water_Draw(const D3DXMATRIX* p_mtx)
+void Water::Draw(int tex_id, const D3DXMATRIX& mtx)
 {
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
 
-	pDevice->SetTransform(D3DTS_WORLD, p_mtx);
+	pDevice->SetTransform(D3DTS_WORLD, &mtx);
 	pDevice->SetFVF(FVF_WATER);
-
-	LPDIRECT3DTEXTURE9 pTexture = Texture_GetTexture(g_tex);
+	LPDIRECT3DTEXTURE9 pTexture = Texture_GetTexture(tex_id);
 
 	pDevice->SetTexture(0, pTexture);
-
+	pDevice->SetRenderState(D3DRS_LIGHTING, FALSE);
+	pDevice->SetStreamSource(0,m_vertex_buffer_ptr,0,sizeof(WaterVertex));
+	pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
 	pDevice->SetRenderState(D3DRS_LIGHTING, TRUE);
-
-	pDevice->DrawPrimitiveUP(D3DPT_TRIANGLELIST, 12, &g_vertices, sizeof(WaterVertex));
 }

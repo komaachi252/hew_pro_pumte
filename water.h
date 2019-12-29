@@ -12,6 +12,7 @@
 #define WATER_H_
 
 #include <d3dx9.h>
+#include <d3d9.h>
 
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
 //	定数定義
@@ -21,14 +22,13 @@
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
 //	クラス定義
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
+class Water {
+public:
+	LPDIRECT3DVERTEXBUFFER9 m_vertex_buffer_ptr;
+	Water(void);
+	~Water(void);
+	void Draw(int tex_id, const D3DXMATRIX& mtx);
+};
 
-
-//☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-//	プロトタイプ宣言
-//☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-void Water_Init(void);	//初期化関数
-void Water_Uninit(void);	//終了処理関数
-void Water_Update(void);	//更新処理
-void Water_Draw(const D3DXMATRIX* p_mtx); //描画処理
 
 #endif // WATER_H_
