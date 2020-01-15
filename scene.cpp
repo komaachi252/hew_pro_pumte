@@ -11,6 +11,8 @@
 #include "Game.h"
 #include "Title.h"
 #include "Result.h"
+#include "Menu.h"
+#include "Tutorial.h"
 
 //™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™
 //	’è”’è‹`
@@ -34,6 +36,12 @@ void Scene_Update(void)
 	case SCENE_TITLE:
 		Title_Update();
 		break;
+	case SCENE_MENU:
+		Menu_Update();
+		break;
+	case SCENE_TUTORIAL:
+		Tutorial_Update();
+		break;
 	case SCENE_GAME:
 		Game_Update();
 		break;
@@ -56,6 +64,12 @@ void Scene_Draw(void)
 		break;
 	case SCENE_TITLE:
 		Title_Draw();
+		break;
+	case SCENE_MENU:
+		Menu_Draw();
+		break;
+	case SCENE_TUTORIAL:
+		Tutorial_Draw();
 		break;
 	case SCENE_GAME:
 		Game_Draw();
@@ -81,6 +95,12 @@ void Set_Scene(SCENE scene)
 	case SCENE_TITLE:
 		Title_Finalize();
 		break;
+	case SCENE_MENU:
+		Menu_Finalize();
+		break;
+	case SCENE_TUTORIAL:
+		Tutorial_Finalize();
+		break;
 	case SCENE_GAME:
 		Game_Finalize();
 		break;
@@ -97,6 +117,12 @@ void Set_Scene(SCENE scene)
 		break;
 	case SCENE_TITLE:
 		Title_Initialize();
+		break;
+	case SCENE_MENU:
+		Menu_Initialize();
+		break;
+	case SCENE_TUTORIAL:
+		Tutorial_Initialize();
 		break;
 	case SCENE_GAME:
 		Game_Initialize();

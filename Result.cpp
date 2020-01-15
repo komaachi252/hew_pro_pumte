@@ -9,8 +9,10 @@
 //★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡
 
 //  ここにリザルト用ヘッダをインクルード
-
-
+#include "Result_manager.h"
+#include "Result_Logo.h"
+#include "fade.h"
+#include "camera.h"
 
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
 //	定数定義
@@ -34,7 +36,11 @@ void Result_Initialize(void)
 	//  Mama_Initialize();
 
 
-
+	Result_Manager_Init();
+	Result_Logo_Init();
+	//	リザルトも２Ｄかな
+	Camera_2D();
+	Fade_Start(60, D3DCOLOR_RGBA(0, 0, 0, 0), false);
 }
 
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
@@ -45,8 +51,8 @@ void Result_Update(void)
 	// --------------------------------
 	//  ここにタイトルの更新関数を記述
 	// --------------------------------
-
-
+	Result_Manager_Update();
+	Result_Logo_Update();
 }
 
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
@@ -57,7 +63,7 @@ void Result_Draw(void)
 	// --------------------------------
 	//  ここにタイトルの描画関数を記述
 	// --------------------------------
-
+	Result_Logo_Draw();
 
 }
 
@@ -69,6 +75,6 @@ void Result_Finalize(void)
 	// --------------------------------
 	//  ここにタイトルの終了関数を記述
 	// --------------------------------
-
-
+	Result_Logo_Uninit();
+	Result_Manager_Uninit();
 }

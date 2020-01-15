@@ -9,12 +9,17 @@
 //šœcšœcšœcšœcšœcšœcšœcšœcšœcšœcšœcšœcšœcšœcšœcšœcšœcšœcšœcšœc
 #define _CRT_SECURE_NO_WARNINGS
 #include<windows.h>
+#include <d3d9.h>
 #include "common.h"
 #include "system_timer.h"
 #include "direct3d.h"
 #include "debug_font.h"
 #include "scene.h"
-
+#include "input.h"
+#include "Input2.h"
+#include "model.h"
+#include "camera.h"
+#include "fade.h"
 
 //™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™
 //	’è”’è‹`
@@ -77,7 +82,6 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 
 	g_pWindow->Finalize();
 	delete g_pWindow;
-
 	return 0;
 }
 
@@ -164,6 +168,10 @@ bool Window::Initialize(void)
 {
 	D3D_Initialize(hWnd);
 	
+	InitDirectInput(hWnd);
+
+	Model_Init();
+
 	Device = GetDevice();
 
 	SystemTimer_Initialize();
@@ -180,10 +188,14 @@ bool Window::Initialize(void)
 
 	DebugFont_Initialize();
 
+	Keyboard_Initialize(hInstance,hWnd);
+	//CameraInit();
 
+	Fade_Init();
 
 	// ÅŒã‚ÉSet_Scene‚Åƒ^ƒCƒgƒ‹
-	// Set_Scene(SCENE_TITLE);
+	Set_Scene(SCENE_TITLE);
+	//Set_Scene(SCENE_GAME);
 
 
 	return true;
@@ -238,8 +250,13 @@ void Window::Update(void)
 
 	}
 
+	UpdateInput(hWnd);
+
 	Scene_Update();
 
+	Keyboard_Update();
+
+	Fade_Update();
 }
 
 //™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™
@@ -248,12 +265,22 @@ void Window::Update(void)
 void Window::Draw(void)
 {
 	//  ‰æ–Ê‚ÌƒNƒŠƒA
-	Device->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_RGBA(80, 100, 200, 255), 1.0f, 0);
+	Device->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_RGBA(20, 200, 0, 255), 1.0f, 0);
 	Device->BeginScene();
+	Device->SetSamplerState(0, D3DSAMP_MAXANISOTROPY, 16);
+	Device->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_ANISOTROPIC);
+	Device->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);
+	Device->SetSamplerState(0, D3DSAMP_MIPFILTER, D3DTEXF_ANISOTROPIC);
+	Device->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
+	Device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
+	Device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
+	Device->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_MODULATE); // ƒGƒtƒFƒNƒg‚Ì•K{
+
 
 	Scene_Draw();
 
-
+	Fade_Draw();
+	//DebugFont_Draw(0, 0, "%f", g_FPS);
 
 	Device->EndScene();
 	Device->Present(NULL, NULL, NULL, NULL);
@@ -264,6 +291,11 @@ void Window::Draw(void)
 //™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™
 void Window::Finalize(void)
 {
+	Model_Uninit();
+
+	Fade_Uninit();
+
+	UninitDirectInput();
 
 	DebugFont_Finalize();
 
@@ -285,6 +317,3 @@ HWND GetWndHundle(void)
 {
 	return g_pWindow->GetWndHundle();
 }
-
-
-

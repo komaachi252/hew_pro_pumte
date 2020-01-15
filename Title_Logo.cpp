@@ -16,8 +16,8 @@
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
 //	定数定義
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-static const int TITLE_LOGO_WIDTH = 483;
-static const int TITLE_LOGO_HEIGHT = 246;
+static const int TITLE_LOGO_WIDTH = 1280;
+static const int TITLE_LOGO_HEIGHT = 720;
 
 
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
@@ -25,8 +25,10 @@ static const int TITLE_LOGO_HEIGHT = 246;
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
 class Title_Logo {
 private:
-	D3DXVECTOR2 pos;
-	int tex;
+	D3DXVECTOR2 m_pos;
+	int m_tex;
+	int m_press_tex;
+	int m_logo_tex;
 public:
 	Title_Logo(void);
 	~Title_Logo(void);
@@ -76,19 +78,25 @@ void Title_Logo_Draw(void)
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
 Title_Logo::Title_Logo(void)
 {
-	tex = Texture_SetLoadFile("Asset/Texture/Title_Logo.png", TITLE_LOGO_WIDTH, TITLE_LOGO_HEIGHT);
+	m_tex = Texture_SetLoadFile("Asset/Texture/タイトル.png", TITLE_LOGO_WIDTH, TITLE_LOGO_HEIGHT);
+	m_logo_tex = Texture_SetLoadFile("Asset/Texture/TRS.png", TITLE_LOGO_WIDTH, TITLE_LOGO_HEIGHT);
+	m_press_tex = Texture_SetLoadFile("Asset/Texture/PAK.png", TITLE_LOGO_WIDTH * 0.5f, TITLE_LOGO_HEIGHT * 0.5f);
 	Texture_Load();
 
 	//  中心座標
-	gp_title_logo->pos = D3DXVECTOR2(SCREEN_WIDTH * 0.5f, SCREEN_HEIGHT * 0.5f);
+	m_pos = D3DXVECTOR2(SCREEN_WIDTH * 0.5f, SCREEN_HEIGHT * 0.5f);
 }
+
+
+
+
 
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
 //	Title_Logo デストラクタ
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
 Title_Logo::~Title_Logo(void)
 {
-	Texture_Destroy(&tex, 1);
+	Texture_Destroy(&m_tex, 1);
 }
 
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
@@ -106,11 +114,13 @@ void Title_Logo::Draw(void)
 {
 	//  中心座標→左上座標
 	float tx, ty;
-	tx = gp_title_logo->pos.x - (TITLE_LOGO_WIDTH * 0.5f);
-	ty = gp_title_logo->pos.y - (TITLE_LOGO_HEIGHT * 0.5f);
-	Sprite_Draw(tex, tx, ty);
+	tx = m_pos.x - (TITLE_LOGO_WIDTH * 0.5f);
+	ty = m_pos.y - (TITLE_LOGO_HEIGHT * 0.5f);
+	Sprite_Draw(m_tex, 0, 0);
+
+
+	Sprite_Draw(m_logo_tex, 0, 0);
+	Sprite_Draw(m_press_tex, 320, 400);
+
+
 }
-
-
-
-

@@ -1,34 +1,36 @@
-//★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡
-//
-//
-//	カメラヘッダ[camera.h]
-//
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//                                                               作成者 矢吹一俊
-//                                                               作成日 10/24(木)
-//★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡
-#pragma once
 #ifndef CAMERA_H_
 #define CAMERA_H_
-
-#include <d3dx9.h>
-
-//☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-//	定数定義
-//☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-
-
-//☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-//	クラス宣言
-//☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
+#include<d3dx9.h>
+#include<d3d9.h>
 
 
 
-//☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-//	プロトタイプ宣言
-//☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-void Camera_Init(void);	//初期化関数
-void Camera_Uninit(void);	//終了処理関数
-void Camera_Set(void);	//カメラ プロジェクション行列設定
-void Camera_Set(D3DXVECTOR3* eye, D3DXVECTOR3* at, D3DXVECTOR3* up);  // カメラ座標入力用
-#endif
+struct camera
+{
+
+	//ビュー変換行列
+	D3DXMATRIX mtxView;
+	D3DXVECTOR3 eye;//カメラ座標
+	D3DXVECTOR3 at;//見る場所
+	D3DXVECTOR3 up;//上方向
+
+	D3DXVECTOR3 vec_flont;//カメラ座標
+	D3DXVECTOR3 vec_right;//見る場所
+	D3DXVECTOR3 vec_up;//上方向
+
+	int rotTimer;//回転時間
+	//プロジェクション変換行列
+	D3DXMATRIX mtxProjection;
+};
+
+
+void CameraInit();
+void CameraUninit();
+void CameraUpdate();
+void CameraDraw(void);
+
+void CameraAddAngleX(float angle);
+void CameraAddAngleY(float angle);
+camera* CameraGet();
+void Camera_2D(void);
+#endif // !CAMERA_H_
