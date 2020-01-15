@@ -1,15 +1,17 @@
 //šœcšœcšœcšœcšœcšœcšœcšœcšœcšœcšœcšœcšœcšœcšœcšœcšœcšœcšœcšœc
 //
 //
-//	ƒwƒbƒ_[Game_manager.h]
+//	ƒwƒbƒ_[menu_button.h]
 //
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //                                                               ì¬Ò –îˆêr
-//                                                               ì¬“ú 12/17(‰Î)
+//                                                               ì¬“ú 1/09(–Ø)
 //šœcšœcšœcšœcšœcšœcšœcšœcšœcšœcšœcšœcšœcšœcšœcšœcšœcšœcšœcšœc
 #pragma once
-#ifndef GAME_MANAGER_H_
-#define GAME_MANAGER_H_
+#ifndef MENU_BUTTON_H_
+#define MENU_BUTTON_H_
+
+#include <d3dx9.h>
 
 
 //™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™
@@ -20,14 +22,18 @@
 //™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™
 //	ƒNƒ‰ƒX’è‹`
 //™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™
+class Menu_Button {
+private:
+	int m_tex_id;
+	float m_x;
+	float m_y;
+	float m_width;
+	float m_height;
+public:
+	Menu_Button(int tex_id, float x, float y, float width, float height);
+	~Menu_Button(void);
+	void Update(void);
+	void Draw(void);
+};
 
-
-
-//™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™
-//	ƒvƒƒgƒ^ƒCƒvéŒ¾
-//™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™
-void Game_Manager_Init(void);	//‰Šú‰»ŠÖ”
-void Game_Manager_Uninit(void);	//I—¹ˆ—ŠÖ”
-void Game_Manager_Update(void);	//XVˆ—
-
-#endif	//	!GAME_MANAGER_H_
+#endif	//	!MENU_BUTTON_H_

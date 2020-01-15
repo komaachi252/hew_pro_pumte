@@ -1,93 +1,67 @@
 //šœcšœcšœcšœcšœcšœcšœcšœcšœcšœcšœcšœcšœcšœcšœcšœcšœcšœcšœcšœc
 //
 //
-//	ˆ—[Menu_manager.cpp]
+//	ˆ—[menu_button.cpp]
 //
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //                                                               ì¬Ò –îˆêr
-//                                                               ì¬“ú 12/17(‰Î)
+//                                                               ì¬“ú 1/09(–Ø)
 //šœcšœcšœcšœcšœcšœcšœcšœcšœcšœcšœcšœcšœcšœcšœcšœcšœcšœcšœcšœc
-#include "input.h"
-#include "fade.h"
-#include "scene.h"
-
-#include <d3d9.h>
+#include "menu_button.h"
+#include "sprite.h"
 
 //™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™
 //	’è”’è‹`
 //™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™
 
+
 //™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™
 //	ƒNƒ‰ƒX’è‹`
 //™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™
-class Menu_Manager
-{
-private:
-	//	’è”’è‹`
-	static const int FADE_FRAME = 60;
-	static const D3DCOLOR FADE_COLOR;
-	//	•Ï”’è‹`
-	bool m_is_fade;
-public:
-	Menu_Manager();
-	virtual ~Menu_Manager();
-	void Update();
-};
 
-const D3DCOLOR Menu_Manager::FADE_COLOR = D3DCOLOR_RGBA(0,0,0,0);
+
+//™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™
+//	ƒvƒƒgƒ^ƒCƒvéŒ¾
+//™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™
+
+
 //™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™
 //	ƒOƒ[ƒoƒ‹•Ï”éŒ¾
 //™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™
-static Menu_Manager* gp_manager = nullptr;
+
 
 //™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™
 //	‰Šú‰»ˆ—
 //™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™
-void Menu_Manager_Init(void)
+Menu_Button::Menu_Button(int tex_id, float x, float y, float width, float height)
 {
-	gp_manager = new Menu_Manager;
+	m_tex_id = tex_id;
+	m_x = x;
+	m_y = y;
+	m_width = width;
+	m_height = height;
 }
 
 //™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™
 //	I—¹ˆ—
 //™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™
-void Menu_Manager_Uninit(void)
+Menu_Button::~Menu_Button(void)
 {
-	delete gp_manager;
+
 }
 
 //™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™
 //	XVˆ—
 //™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™
-void Menu_Manager_Update(void)
+void Menu_Button::Update(void)
 {
-	gp_manager->Update();
+
 }
 
 //™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™
-//	ƒRƒ“ƒXƒgƒ‰ƒNƒ^
+//	•`‰æˆ—
 //™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™
-Menu_Manager::Menu_Manager(void):m_is_fade(false)
+void Menu_Button::Draw(void)
 {
-}
-
-//™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™
-//	ƒfƒXƒgƒ‰ƒNƒ^
-//™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™
-Menu_Manager::~Menu_Manager(void)
-{
-}
-
-//™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™
-//	XVˆ—
-//™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™
-void Menu_Manager::Update(void)
-{
-	if (Keyboard_IsTrigger(DIK_RETURN) && !m_is_fade) {
-		Fade_Start(FADE_FRAME, FADE_COLOR, true);
-		m_is_fade = true;
-	}
-	if (m_is_fade && !Fade_IsFade()) {
-		Set_Scene(SCENE_GAME);
-	}
+	Sprite_Draw(m_tex_id, m_x, m_y, m_width, m_height);
 }

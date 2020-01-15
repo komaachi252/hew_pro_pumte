@@ -13,6 +13,7 @@
 #include "Menu_Logo.h"
 #include "fade.h"
 #include "camera.h"
+#include "menu_button_manager.h"
 
 //™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™
 //	’è”’è‹`
@@ -37,6 +38,7 @@ void Menu_Initialize(void)
 
 	Menu_Manager_Init();
 	Menu_Logo_Init();
+	Menu_Button_Manager_Init();
 	Camera_2D();
 	Fade_Start(60, D3DCOLOR_RGBA(0, 0, 0, 0), false);
 
@@ -52,6 +54,7 @@ void Menu_Update(void)
 	// --------------------------------
 	Menu_Manager_Update();
 	Menu_Logo_Update();
+	Menu_Button_Manager_Update();
 }
 
 //™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™
@@ -62,7 +65,8 @@ void Menu_Draw(void)
 	// --------------------------------
 	//  •`‰æŠÖ”‚ğ‹Lq
 	// --------------------------------
-	Menu_Logo_Draw();
+	//Menu_Logo_Draw();
+	Menu_Button_Manager_Draw();
 }
 
 //™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™
@@ -75,4 +79,5 @@ void Menu_Finalize(void)
 	// --------------------------------
 	Menu_Logo_Uninit();
 	Menu_Manager_Uninit();
+	Menu_Button_Manager_Uninit();
 }

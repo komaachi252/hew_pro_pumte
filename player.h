@@ -1,44 +1,69 @@
-//šœcšœcšœcšœcšœcšœcšœcšœcšœcšœcšœcšœcšœcšœcšœcšœcšœcšœcšœcšœc
-//
-//
-//	ƒwƒbƒ_[model.h]
-//
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//                                                               ì¬Ò –îˆêr
-//                                                               ì¬“ú 11/14(–Ø)
-//šœcšœcšœcšœcšœcšœcšœcšœcšœcšœcšœcšœcšœcšœcšœcšœcšœcšœcšœcšœc
-#pragma once
-#ifndef MODEL2_H_
-#define MODEL2_H_
-
-#include <d3dx9.h>
-
-//™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™
-//	’è”’è‹`
-//™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™
-enum PLAYER_COLI
+#ifndef PLAYER_H_
+#define PLAYER_H_
+#define FVF_PLAYER (  D3DFVF_XYZ  | D3DFVF_DIFFUSE | D3DFVF_NORMAL)
+#include"Judgement.h"
+#include<d3d9.h>
+#include"direct3d.h"
+#include"common.h"
+#include"camera.h"
+#include"grid.h"
+#include<math.h>
+#include"input.h"
+#include"line.h"
+class Player
 {
-	PLAYER_COLI_BROCKS = 0,
-	PLAYER_COLI_NUM
+public:
+	//À•W
+	D3DXVECTOR3 pos;
+
+	//‘¬“x
+	float speed = 0.0f;
+	float speedMax = 0.0f;
+
+	//‰Á‘¬“x
+	float acceralation = 0.0f;
+
+	//Šp“x
+	float angleX = 0.0f;
+	float angleY = 0.0f;
+
+	//‰ñ“]‘¬“x
+	float rotSpeed = 0.0f;
+	//‰ñ“]‰Á‘¬“x
+	float rotAcceralation = 0.0f;
+
+	//‘å‚«‚³
+	float scale = 0.0f;
+
+	Spheres* coliSpheres;
+	ForcusSpheresIsSpheres* IsRock;
+
+
+	//p¨§Œä
+	D3DXVECTOR3 vecFront;
+	D3DXVECTOR3 vecRight;
+	D3DXVECTOR3 vecUp;
+	
+	float cameraAngleX;
+	float cameraAngleY;
+
+	float fov = 0.0f;
+	int modelId;
+	D3DXMATRIX mtxWorld;
+
+	~Player();
+	void Init(void);
+	void Draw(void);
+	void Uninit(void);
+	void Update(void);
+	void AngleUpdate();
 };
 
+void PlayerInit(void);
+void PlayerDraw(void);
+void PlayerUninit(void);
+void PlayerUpdate(void);
+Player* PlayerGet();
 
-//™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™
-//	ƒNƒ‰ƒX’è‹`
-//™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™
 
-
-
-//™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™
-//	ƒvƒƒgƒ^ƒCƒvéŒ¾
-//™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™
-void Player_Init(void);	//‰Šú‰»ŠÖ”
-void Player_Uninit(void);	//I—¹ˆ—ŠÖ”
-void Player_Update(void);
-void Player_Draw(void);    //•`‰æˆ—
-float Get_Player_Pos_Z(void);
-D3DXVECTOR3* PlayerGetPos(void);
-float* PlayerGetColiLenth(void);
-void PlayerSetColiFlag(PLAYER_COLI e, bool set, int ID);
-
-#endif
+#endif // !PLAYER_H_

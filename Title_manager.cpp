@@ -83,7 +83,7 @@ Title_Manager::~Title_Manager(void)
 //™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™
 void Title_Manager::Update(void)
 {
-	if (Keyboard_IsTrigger(DIK_SPACE) && !m_is_fade) {
+	if (Keyboard_IsTrigger(DIK_RETURN) && !m_is_fade) {
 		Fade_Start(FADE_FRAME, FADE_COLOR, true);
 		m_is_fade = true;
 	}

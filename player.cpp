@@ -1,421 +1,394 @@
-//★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡
-//
-//
-//	処理[model.cpp]
-//
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//                                                               作成者 矢吹一俊
-//                                                               作成日 11/14(木)
-//★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡
-#define _CRT_SECURE_NO_WARNINGS
-#include <d3dx9.h>
-#include "texture.h"
-#include "direct3d.h"
-#include "model.h"
-#include "Input2.h"
-#include "debug_font.h"
-#include "Judgement.h"
-#include "brocks.h"
-#include "player.h"
-#include "input.h"
-
-
-//☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-//	定数定義
-//☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-
-//☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-//	クラス宣言
-//☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-
-
-//☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-//	プロトタイプ宣言
-//☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-
-
-//☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-//	グローバル変数宣言
-//☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-static int tex;
-static int tex2;
-
-static float x = 0.0f;
-static float y = 0.0f;
-
-static float jj = 0.0f;
-
-static D3DXVECTOR3 g_pos(0.0f, 1.0f, -10.0f);
-
-//当たり判定長さ
-static float g_coliLenth = 0.0f;
-//当たり判定
-static Coli g_coliBrock[BROCK_NUM] = { 0 };
-
-//速度
-static float g_speed = 0.1f;
-//加速度
-static float g_acceralation = 0.0f;
-
-static int frame;
-
-static float g_angle = D3DXToRadian(180);
-//static float g_angle = 0.0f;
-static int count = 0;
-static int countl = 0;
-static int countr = 0;
-static int g_cuvetex = 0;
-static float g_moveSpeed = 0.0f;
-static D3DXVECTOR3 Position(0.0f, 0.8f, 0.0f);
-static D3DXVECTOR3 vecDir(0.0f, 0.0f, 0.0f);
-static bool turnl = false;
-static bool turnr = false;
-static float Rot_Ang;
-static float Rot_Now = 0.0f;
-static D3DXVECTOR3 vecfront;
-static float g_rotationspeed = 0.0f;
-//☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-//	初期化処理
-//☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-void Player_Init(void)
+#include"player.h"
+#include"Judgement.h"
+#include<d3d9.h>
+#include"direct3d.h"
+#include"common.h"
+#include"camera.h"
+#include"grid.h"
+#include<math.h>
+#include"input.h"
+#include"line.h"
+#include"player.h"
+#include"model.h"
+//#include"Bullet.h"
+//#include"shadow.h"
+//\#include"debugPrintf.h"
+#include"debug_font.h"
+#include"rock.h"
+#include"Input2.h"
+Player::~Player()
 {
-
-	//LPDIRECT3DDEVICE9 pDevice = GetDevice();
-
-	//tex = Model_Load("gradriel.x");
-	tex = Model_Load("Wboat.x");
-	//tex = Model_Load("boat1.x");
-	//tex = Model_Load("MetaKnight.x");
-	//tex = Model_Load("cart.x");
-
-	//当たり判定系
-	g_coliLenth = 1.0f;
-	for (int i = 0; i < BROCK_NUM; i++)
-	{
-		g_coliBrock[i].now = false;
-		g_coliBrock[i].past = false;
-	}
-	frame=-1;
-
+	coliSpheres->Delete();
 }
 
-//☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-//	終了処理
-//☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-void Player_Uninit(void)
+void Player::Init(void)
+{
+	//モデル系//////////////////////////
+	modelId = Model_Load("ft.x");
+	/*
+	modelId = SetLordModel("MyAccet\\model\\boat\\ft.x");
+	ModelLord(modelId, "boat\\");
+	*/
+	////////////////////////////////////_
+
+	//座標系////////////////////////////
+	pos = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+	speedMax = 0.1f;
+	rotSpeed = D3DXToRadian(0.85f);
+	rotAcceralation = 0.0f;
+
+	scale = 1.0;
+
+	vecFront = D3DXVECTOR3(0.0f, 1.0f, 1.0f);
+	//前方向ベクトルが０の値のベクトル成分の単位ベクトル、こんかいはX成分
+	vecRight = D3DXVECTOR3(1.0f, 0.0f, 0.0f);
+	//前方向ベクトルを正規化
+	D3DXVec3Normalize(&vecFront, &vecFront);
+	//外積で上ベクトル
+	D3DXVec3Cross(&vecUp, &vecFront, &vecRight);
+	D3DXVec3Normalize(&vecUp, &vecUp);
+
+	D3DXMATRIX mtxRot;
+
+	D3DXMatrixRotationAxis(&mtxRot, &vecRight, D3DXToRadian(45));
+	D3DXVec3TransformNormal(&vecFront, &vecFront, &mtxRot);
+	D3DXVec3TransformNormal(&vecRight, &vecRight, &mtxRot);
+	vecFront.y = 0.0f;
+	vecRight.y = 0.0f;
+	D3DXVec3Normalize(&vecFront, &vecFront);
+	D3DXVec3Normalize(&vecRight, &vecRight);
+
+
+	angleY = atan2(vecFront.z, vecFront.x);
+
+	D3DXMatrixRotationY(&mtxRot, angleY + D3DXToRadian(-90));
+	D3DXVec3TransformNormal(&vecFront, &vecFront, &mtxRot);
+	D3DXVec3TransformNormal(&vecRight, &vecRight, &mtxRot);
+	D3DXVec3TransformNormal(&vecUp, &vecUp, &mtxRot);
+
+	AngleUpdate();
+
+	//座標系////////////////////////////_
+
+	//行列
+	D3DXMATRIX mtxScal, mtxTranslation, mtxRotationY, mtxRotationX;
+	//スケーリング
+	D3DXMatrixScaling(&mtxScal, scale, scale, scale);
+	//トランスレーション
+	D3DXMatrixTranslation(&mtxTranslation, pos.x, pos.y, pos.z);
+	//ローテーション
+	AngleUpdate();
+	D3DXMatrixRotationY(&mtxRotationY, angleY);
+	D3DXMatrixRotationAxis(&mtxRotationX, &vecRight, -angleX);
+	//スケーリング＊ローテーション＊トランスレーション
+	mtxWorld = mtxScal * mtxRotationY *mtxRotationX* mtxTranslation;
+
+
+
+	//当たり判定系//////////////////////
+
+	coliSpheres = new Spheres(new Sphere(0.5, D3DXVECTOR3(-0.5f, 0.0f, 0.0f), &mtxWorld));
+	coliSpheres->AddSphare(new Sphere(0.5, D3DXVECTOR3(0.5f, 0.0f, 0.0f), &mtxWorld));
+	coliSpheres->AddSphare(new Sphere(0.5, D3DXVECTOR3(0.0f, 0.0f, 1.0f), &mtxWorld));
+	coliSpheres->AddSphare(new Sphere(0.5, D3DXVECTOR3(0.0f, 0.0f, 2.0f), &mtxWorld));
+	coliSpheres->AddSphare(new Sphere(0.5, D3DXVECTOR3(0.0f, 0.0f, 3.0f), &mtxWorld));
+	coliSpheres->AddSphare(new Sphere(0.5, D3DXVECTOR3(0.0f, 0.0f, -1.0f), &mtxWorld));
+	coliSpheres->AddSphare(new Sphere(0.5, D3DXVECTOR3(0.0f, 0.0f, -2.0f), &mtxWorld));
+	coliSpheres->AddSphare(new Sphere(0.5, D3DXVECTOR3(0.0f, 0.0f, -3.0f), &mtxWorld));
+	IsRock = new ForcusSpheresIsSpheres(coliSpheres, RocksGetColi());
+
+	//当たり判定系//////////////////////_		
+
+
+
+};
+void Player::Draw(void)
+{
+	LPDIRECT3DDEVICE9 Device = GetDevice();
+	Device->SetFVF(FVF_PLAYER);
+	Device->SetTexture(0, NULL);
+	Device->SetRenderState(D3DRS_LIGHTING, FALSE);
+
+	////アルファテスト（ブレンドとは違う）//終わったらオフにする
+	//g_sampleDevice->SetRenderState(D3DRS_ALPHATESTENABLE, TRUE);
+	////なんか
+	//g_sampleDevice->SetRenderState(D3DRS_ALPHAFUNC,D3DCMP_GREATER);
+	////基準値の設定　0-255
+	//g_sampleDevice->SetRenderState(D3DRS_ALPHAREF, 200);
+	//
+	//g_sampleDevice->SetRenderState(D3DRS_ZENABLE, FALSE);
+	//g_sampleDevice->SetRenderState(D3DRS_ZWRITEENABLE, FALSE);
+
+
+
+
+	//ModelDraw(modelId, mtxWorld);
+
+	Model_Draw(modelId, mtxWorld);
+};
+void Player::Uninit(void)
 {
 
-}
-
-//☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-//	更新処理
-//☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-void Player_Update(void)
+};
+void Player::Update(void)
 {
-	D3DXVECTOR3 vecz(0.0f, 0.0f, 1.0f);
-
-	float right = GetAxisZ(1, true);
-	float left = GetAxisZ(0, true);
-
-	Rot_Ang = right - left;
-
-	//初期位置に戻す
-	if (GetBotton(0, 5) || Keyboard_IsPress(DIK_1))
-	{
-		Position.x = 0.0f;
-		Position.y = 0.0f;
-		Position.z = 0.0f;
-		g_moveSpeed = 0.0f;
-	}
-
-	if (GetBotton(0, 4))
-	{
-		Position.x = 0.0f;
-		Position.y = 0.0f;
-		Position.z = 0.0f;
-	}
-
-	if (count >= 20)
-	{
-		vecfront = vecz;
-		count = 0;
-	}
-	/*
-	if (Rot_Ang > 0)
-	{
-	//右に回転
-	D3DXMATRIX mtxrot;
-	Rot_Ang *= 0.00001f;
-	Rot_Now += Rot_Ang;
-	D3DXMatrixRotationY(&mtxrot, Rot_Now);
-	D3DXVec3TransformNormal(&vecfront, &vecfront, &mtxrot);
-	//g_moveSpeed += 0.1f*j_conPos;
-	g_moveSpeed += 0.00001f*(right + left);
-
-	}
-	else if (Rot_Ang < 0)
-	{
-	//左に回転
-	D3DXMATRIX mtxrot;
-	Rot_Ang *= 0.00001f;
-	Rot_Now += Rot_Ang;
-	D3DXMatrixRotationY(&mtxrot, Rot_Now);
-	D3DXVec3TransformNormal(&vecfront, &vecfront, &mtxrot);
-	//g_moveSpeed += 0.1f*j_conPos;
-	g_moveSpeed += 0.00001f*(right + left);
-	}*/
-
-	if (countr > 10 && countl > 10)
-	{
-		vecDir = D3DXVECTOR3(0.0f, 0.0f, 1.0f);
-		g_moveSpeed += 0.01f;
-		countl = 0;
-		countr = 0;
-	}
-
-	if (countr > 15)
-	{
-		//右に回転
-		D3DXMATRIX mtxrot;
-		Rot_Ang *= 0.00001f;
-		Rot_Now += Rot_Ang;
-		Rot_Now = 0.5f;
-		D3DXMatrixRotationY(&mtxrot, Rot_Now);
-		D3DXVec3TransformNormal(&vecfront, &vecfront, &mtxrot);
-		g_moveSpeed += 0.01f;
-		countl = 0;
-		countr = 0;
-	}
-	if (countl > 15)
-	{
-		//左に回転
-		D3DXMATRIX mtxrot;
-		Rot_Ang *= 0.00001f;
-		Rot_Now += Rot_Ang;
-		Rot_Now = 0.5f;
-		D3DXMatrixRotationY(&mtxrot, -Rot_Now);
-		D3DXVec3TransformNormal(&vecfront, &vecfront, &mtxrot);
-		g_moveSpeed += 0.01f;
-		countl = 0;
-		countr = 0;
-	}
-
-	float axisz = GetAxisZ(0, true) - GetAxisZ(1, true);
 
 
 
-	if (Keyboard_IsPress(DIK_F) || GetAxisZ(0, true) > 500)
-	{
-		countl++;
-	}
-	if (Keyboard_IsPress(DIK_J) || GetAxisZ(1, true) > 500)
-	{
-		countr++;
-	}
+	camera *cam = CameraGet();
 
-	/*
-	D3DXMATRIX mtxRotation;
-	float rotate = acosf(D3DXVec3Dot(&vecfront, &vecz));
-	D3DXVECTOR3 gaiseki(0.0f, 0.0f, 0.0f);
-	D3DXVec3Cross(&gaiseki, &vecfront, &vecz);
-	if (gaiseki.y > 0)
-	{
-	if (fabs(rotate) < g_rotationspeed)
-	{
-	D3DXMatrixRotationY(&mtxRotation, -rotate);
-	D3DXVec3TransformNormal(&vecfront, &vecfront, &mtxRotation);
-	}
-	else
-	{
-	D3DXMatrixRotationY(&mtxRotation, -g_rotationspeed);
-	D3DXVec3TransformNormal(&vecfront, &vecfront, &mtxRotation);
-	}
-	}
-	else
-	{
-	if (fabs(rotate) < g_rotationspeed)
-	{
-	D3DXMatrixRotationY(&mtxRotation, rotate);
-	D3DXVec3TransformNormal(&vecfront, &vecfront, &mtxRotation);
-	}
-	else
-	{
-	D3DXMatrixRotationY(&mtxRotation, g_rotationspeed);
-	D3DXVec3TransformNormal(&vecfront, &vecfront, &mtxRotation);
-	}
-	}
-	*/
 
-	Rot_Now *= 0.8f;
-	g_moveSpeed = g_moveSpeed * 0.99f;
-
-	vecDir = vecfront;
-	D3DXVec3Normalize(&vecDir, &vecDir);
-	Position += vecDir * g_moveSpeed;
-	count++;
-	/*
-	if (Keyboard_IsPress(DIK_W)) {
-		g_pos.z += g_speed;
-	}
-	if (Keyboard_IsPress(DIK_D)) {
-		g_pos.x += g_speed;
-	}
-	if (Keyboard_IsPress(DIK_A)) {
-		g_pos.x -= g_speed;
-	}
-	for (int i = 0; i < BROCK_NUM; i++)
+	D3DXVECTOR3 vecDir = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+	if (GetAxisX(0, true) + GetAxisY(0, true) + GetAxisZ(0, true) > 1200)
 	{
-
-		if (ColiTriger(&g_coliBrock[i]))//トリガー
+		if (GetAxisX(0, true) + GetAxisY(0, true) + GetAxisZ(0, true) > GetAxisX(1, true) + GetAxisY(1, true) + GetAxisZ(1, true))//右のほうが強いなら
 		{
-			g_acceralation = 0.0f;
-			g_speed = -g_speed;
-			frame = 0;
+			vecDir += cam->vec_right;
 
-		}
-		if (ColiRelease(&g_coliBrock[i]))//リリース
-		{
-
+	
 		}
 	}
-
-	if (frame >= 0)
+	if (GetAxisX(1, true) + GetAxisY(1, true) + GetAxisZ(1, true) > 1200)
 	{
-
-		if (frame>30)
+		if (GetAxisX(0, true) + GetAxisY(0, true) + GetAxisZ(0, true) < GetAxisX(1, true) + GetAxisY(1, true) + GetAxisZ(1, true))//左のほうが強いなら
 		{
-			g_speed *= -1;
-			frame = -1;
-
+			vecDir += -cam->vec_right;
 		}
-		else
-		{
-
-			frame++;
-
-		}
-
 	}
-	*/
-	for (int i = 0; i < PLAYER_COLI_NUM; i++)
+	
+	
+
+	if (Keyboard_IsPress(DIK_UPARROW))
 	{
-		switch (i)
+		vecDir += cam->vec_flont;
+		acceralation += 0.01f;
+	}
+	if (Keyboard_IsPress(DIK_RIGHTARROW))
+	{
+		vecDir += cam->vec_right;
+	
+		acceralation += 0.01f;
+	}
+	if (Keyboard_IsPress(DIK_LEFTARROW))
+	{
+		vecDir += -cam->vec_right;
+	
+		acceralation += 0.01f;
+	}
+	if (Keyboard_IsPress(DIK_DOWNARROW))
+	{
+	
+		vecDir += -cam->vec_flont;
+		acceralation += 0.01f;
+	}
+	if (Keyboard_IsPress(DIK_W))
+	{
+		pos.y += 0.075f;
+	}
+	if (Keyboard_IsPress(DIK_S))
+	{
+		pos.y += -0.075f;
+	}
+
+	if (vecDir != D3DXVECTOR3(0.0f, 0.0f, 0.0f))
+	{
+		acceralation += 0.01f;
+
+		//正規化
+		D3DXVec3Normalize(&vecFront, &vecFront);
+		D3DXVec3Normalize(&vecDir, &vecDir);
+
+		//カメラの前ベクトルとプレイヤーの前ベクトルの外積
+		D3DXVECTOR3 outCloss = D3DXVECTOR3(
+			(vecDir.y*vecFront.z) - (vecDir.z*vecFront.y),
+			(vecDir.z*vecFront.x) - (vecDir.x*vecFront.z),
+			(vecDir.x*vecFront.y) - (vecDir.y*vecFront.x));
+
+		D3DXVECTOR2 dir(vecDir.x, vecDir.z);
+		D3DXVECTOR2 vec2(vecFront.x, vecFront.z);
+
+		D3DXVec2Normalize(&dir, &dir);
+		D3DXVec2Normalize(&vec2, &vec2);
+
+		float inCloss = (dir.x*vec2.x) + (dir.y*vec2.y);
+		float angleCisP = acosf(inCloss);
+
+		//右回り
+		if (outCloss.y < 0.0f)
 		{
-		case PLAYER_COLI_BROCKS:
-			for (int j = 0; j < BROCK_NUM; j++)
+
+			if (angleCisP > rotSpeed)
 			{
-				g_coliBrock[j].past = g_coliBrock[j].now;
-				g_coliBrock[j].now = false;
+				D3DXMATRIX mtxRot;
+
+				D3DXMatrixRotationY(&mtxRot, rotSpeed);
+				D3DXVec3TransformNormal(&vecFront, &vecFront, &mtxRot);
+				D3DXVec3TransformNormal(&vecRight, &vecRight, &mtxRot);
+				D3DXVec3TransformNormal(&vecUp, &vecUp, &mtxRot);
+
 			}
-			break;
-		case PLAYER_COLI_NUM:
-			break;
-		default:
-			break;
+		}
+		//左回り
+		else if (outCloss.y > 0.0f)
+		{
+
+			if (angleCisP > rotSpeed)
+			{
+				D3DXMATRIX mtxRot;
+				D3DXMatrixRotationY(&mtxRot, -rotSpeed);
+				D3DXVec3TransformNormal(&vecFront, &vecFront, &mtxRot);
+				D3DXVec3TransformNormal(&vecRight, &vecRight, &mtxRot);
+				D3DXVec3TransformNormal(&vecUp, &vecUp, &mtxRot);
+
+			}
+		}
+		//平行
+		else if (outCloss.y == 0.0f)
+		{
+			if (inCloss < 0)
+			{
+
+				D3DXMATRIX mtxRot;
+				D3DXMatrixRotationY(&mtxRot, rotSpeed);
+				D3DXVec3TransformNormal(&vecFront, &vecFront, &mtxRot);
+				D3DXVec3TransformNormal(&vecRight, &vecRight, &mtxRot);
+				D3DXVec3TransformNormal(&vecUp, &vecUp, &mtxRot);
+			}
 		}
 	}
-}
 
 
+	//移動処理
+	D3DXVECTOR3 vecmove;
+	Spheres* now = coliSpheres;
 
-//☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-//	描画処理
-//☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-void Player_Draw(void)
-{
-	LPDIRECT3DDEVICE9 pDevice = GetDevice();
-
-	D3DXMATRIX mtxW,mtxT,mtxR;
-	/*
-	D3DXMatrixIdentity(&mtxW);
-
-	pDevice->SetTransform(D3DTS_WORLD, &mtxW);
-
-	Model_Draw(tex);
-
-	D3DXMatrixTranslation(&mtxT, 1.0f, 0.0f, 0.0f);
-	mtxW = mtxT;
-	pDevice->SetTransform(D3DTS_WORLD, &mtxW);
-	Model_Draw(tex2);
-	*/
-	/*
-	x += GetAxisX(0) * 0.0003f / 2; //  Xのほうが良さげ？
-	x += GetAxisX(1) * 0.0003f / 2;
-	x += GetAxisX(2) * 0.0003f / 2;
-	x += GetAxisX(3) * 0.0003f / 2;
-
-	// Ljoyの値が範囲以内　かつ　RJoyの値が範囲以上なら　右に曲がる
-
-	//  パドルの仕様に依存する　値は適当　限界値をチェックする
-	if (GetAxisX(0) * 0.0005f < 0.01f && GetAxisX(1) * 0.0005f > 0.1f) {
-		y += GetAxisX(1) * 0.0003f;
-	}
-	if (GetAxisX(1) * 0.0005f < 0.01f && GetAxisX(0) * 0.0005f > 0.1f) {
-		y -= GetAxisX(0) * 0.0003f;
-	}
-
-	if (GetAxisX(2) * 0.0005f < 0.01f && GetAxisX(3) * 0.0005f > 0.1f) {
-		y += GetAxisX(3) * 0.0003f;
-	}
-	if (GetAxisX(3) * 0.0005f < 0.01f && GetAxisX(2) * 0.0005f > 0.1f) {
-		y -= GetAxisX(2) * 0.0003f;
-	}
-	*/
-
-
-
-	//x += GetlRz(1) * 0.0005f;
-	//y += GetlX(0) * 0.0005f;
-	//y += GetAxisX(0) * 0.0005f;
-	//x += GetAxisY(0) * 0.0005f;
-
-	//DebugFont_Draw(100, 100, "%d",x);
-	/*
-	D3DXMatrixIdentity(&mtxW);
-
-
-	D3DXMatrixTranslation(&mtxT, g_pos.x, g_pos.y, g_pos.z);
-
-	D3DXMatrixRotationY(&mtxR,D3DX_PI);
-
-	mtxW = mtxR * mtxT;
-	pDevice->SetTransform(D3DTS_WORLD, &mtxW);
-
-	*/
-	D3DXMATRIX mtxWorld, mtxTranslation;   //int a って書いたのと同じ。中にはまだゴミが入ってる。floatが16個入ってるようなもの
-	D3DXMatrixIdentity(&mtxWorld);  //単位行列 a = 1 と同じようなもの
-	D3DXMatrixTranslation(&mtxTranslation, Position.x, Position.y, Position.z);
-	mtxWorld = mtxTranslation;
-	pDevice->SetTransform(D3DTS_WORLD, &mtxWorld);
-	Model_Draw(tex);
-
-}
-
-float Get_Player_Pos_Z(void) {
-	return Position.z;
-}
-
-D3DXVECTOR3* PlayerGetPos(void)
-{
-	return &Position;
-}
-
-float* PlayerGetColiLenth(void)
-{
-	return &g_coliLenth;
-}
-
-void PlayerSetColiFlag(PLAYER_COLI e, bool set, int ID)
-{
-	switch (e)
+	if (IsRock->focus.now == true)
 	{
-	case PLAYER_COLI_BROCKS:
 
-		g_coliBrock[ID].now = set;
-		break;
-	case PLAYER_COLI_NUM:
-		break;
-	default:
-		break;
+		if (IsRock->focus.past == false)
+		{
+			//当たっているなら
+			acceralation *= -0.5f;
+			speed *= -1;
+		}
 	}
+
+	D3DXMATRIX mtxRot;
+	D3DXMatrixRotationY(&mtxRot, angleY);
+	D3DXVECTOR3 vecpos;
+	bool endFlag;
+	if (Keyboard_IsPress(DIK_SPACE) == FALSE)
+	{
+		now = coliSpheres;
+		endFlag = false;
+
+		while (endFlag == false)
+		{
+
+			vecpos = now->me->pos;
+			D3DXVec3TransformNormal(&vecpos, &vecpos, &mtxRot);
+			vecmove = pos + vecpos + (vecFront*(speed + now->me->lenth));
+			//if (FieldInFlag(vecmove) == true)
+			//{
+
+
+			if (now->next == nullptr)
+			{
+				pos += vecFront * speed;
+				endFlag = true;
+			}
+			else
+			{
+
+				now = now->next;
+			}
+			//}
+			//else
+			//{
+			//
+			//	speed *= 0.5f;
+			//	acceralation *= 0.5f;
+			//	endFlag = true;
+			//
+			//}
+
+		}
+	}
+
+	//減速
+	acceralation *= 0.9f;
+	speed *= 0.9f;
+
+	speed += acceralation;
+	if (speed > speedMax)
+	{
+		speed = speedMax;
+	}
+	if (speed < -speedMax)
+	{
+		speed = -speedMax;
+	}
+
+
+	//行列
+	D3DXMATRIX mtxScal, mtxTranslation, mtxRotationY, mtxRotationX;
+
+
+	//スケーリング
+	D3DXMatrixScaling(&mtxScal, scale, scale, scale);
+
+	//トランスレーション
+	D3DXMatrixTranslation(&mtxTranslation, pos.x, pos.y, pos.z);
+
+	//ローテーション
+
+	AngleUpdate();
+
+
+	D3DXMatrixRotationY(&mtxRotationY, angleY);
+	D3DXMatrixRotationAxis(&mtxRotationX, &vecRight, -angleX);
+
+	//スケーリング＊ローテーション＊トランスレーション
+	mtxWorld = mtxScal * mtxRotationY *mtxRotationX* mtxTranslation;
+	coliSpheres->Update();
+
+};
+void Player::AngleUpdate()
+{
+	if (vecUp.y > 0)
+	{
+		angleX = atan2(vecFront.y, Vec2Lenth(-D3DXVECTOR2(vecFront.x, vecFront.z)));
+	}
+	else
+	{
+
+		angleX = atan2(vecFront.y, -Vec2Lenth(-D3DXVECTOR2(vecFront.x, vecFront.z)));
+	}
+	angleY = atan2(vecFront.x, vecFront.z);
+};
+
+Player g_player;
+void PlayerInit(void)
+{
+	g_player.Init();
+}
+
+void PlayerDraw(void)
+{
+	g_player.Draw();
+	
+}
+
+void PlayerUninit(void)
+{
+	g_player.Uninit();
+}
+
+void PlayerUpdate(void)
+{
+	g_player.Update();
+}
+Player* PlayerGet()
+{
+	return &g_player;
 }

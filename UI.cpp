@@ -12,8 +12,8 @@
 #include "common.h"
 #include "camera.h"
 #include "start_count.h"
-#include "Flags.h"
-#include "gool.h"
+//#include "Flags.h"
+//#include "gool.h"
 
 #define TEX_HIGHT (196)																	//テクスチャの高さ
 #define COUNTUP_TIME (0.017)															//タイムのインクリメント数　120秒で2.4秒の誤差アリ
@@ -58,22 +58,24 @@ void UI_Update(void)
 	if (!Is_Start_Count_End()) {
 		return;
 	}
+	/*
 	if (GoolGetCrear()) {
 		return;
 	}
+	*/
 	g_time += COUNTUP_TIME;															   //タイムのカウントアップ
 
 
 }
 void UI_Draw()
 {
-	g_gate_count = FlagsGetCnt();
+	//g_gate_count = FlagsGetCnt();
 	Camera_2D();
 	Sprite_Draw(g_UI_tex, 0, 0);														//UIの文字部分の表示
-	Number_Draw(FLAG_NUM/10,234,128);													//全てのゲート数の表示　10の位
-	Number_Draw(FLAG_NUM % 10, 262, 128);												//全てのゲート数の表示　1の位
-	Number_Draw(g_gate_count/10, 152, 128);												//通過ゲート数の表示　10の位
-	Number_Draw(g_gate_count%10, 180, 128);												//通過ゲート数の表示　1の位
+	//Number_Draw(FLAG_NUM/10,234,128);													//全てのゲート数の表示　10の位
+	//Number_Draw(FLAG_NUM % 10, 262, 128);												//全てのゲート数の表示　1の位
+	//Number_Draw(g_gate_count/10, 152, 128);												//通過ゲート数の表示　10の位
+	//Number_Draw(g_gate_count%10, 180, 128);												//通過ゲート数の表示　1の位
 
 	int num;																			//ループで算出される各桁の数字を保持する変数
 	int time = g_time * DECIMAL_POINT;													//桁を減らしながらタイムを保持する変数　最初にタイムを自然数で保持
@@ -86,10 +88,11 @@ void UI_Draw()
 			Sprite_Draw(g_period_tex, 274 - i * NUM_SPACE, 66);
 		}
 	}
-
+	/*
 	if (GoolGetCrear()) {
 		Sprite_Draw(g_goal_tex, 500, 100);
 	}
+	*/
 }
 
 

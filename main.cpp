@@ -189,7 +189,7 @@ bool Window::Initialize(void)
 	DebugFont_Initialize();
 
 	Keyboard_Initialize(hInstance,hWnd);
-	Camera_Init();
+	//CameraInit();
 
 	Fade_Init();
 

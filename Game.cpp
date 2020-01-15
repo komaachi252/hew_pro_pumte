@@ -19,11 +19,12 @@
 #include "start_count.h"
 #include "player.h"
 #include "UI.h"
-#include "brocks.h"
+//#include "brocks.h"
 #include "Judgement.h"
-#include "Flags.h"
-#include "gool.h"
+//#include "Flags.h"
+//#include "gool.h"
 #include "fade.h"
+#include "rock.h"
 //#include "player.h"
 //#include "line.h"
 
@@ -47,16 +48,19 @@ void Game_Initialize(void)
 	// --------------------------------
 	// Enemy_Initialize();
 	// Player_Initialize();
+	RockInit();
+	PlayerInit();
+	CameraInit();
+	JudgementInit();
 	Game_Manager_Init();
 	Light_Init();
 	Set_Light();
 	Grid_Init();
 	Map_Init();
 	Start_Count_Init();
-	Player_Init();
-	BrocksInit();
-	FlagsInit();
-	GoolInit();
+	//BrocksInit();
+	//FlagsInit();
+	//GoolInit();
 	UI_Init();
 	//LineInit();
 	Fade_Start(60, D3DCOLOR_RGBA(0, 0, 0, 0), false);
@@ -71,17 +75,18 @@ void Game_Update(void)
 	// --------------------------------
 	//  ここにゲームの更新関数を記述
 	// --------------------------------
+	PlayerUpdate();
+	CameraUpdate();
 	Game_Manager_Update();
-	Camera_Update();
-	Grid_Update();
-	Water_Update();
-	Start_Count_Update();
-	UI_Update();
-	Player_Update();
-	BrocksUpdate();
-	FlagsUpdate();
-	GoolUpdate();
 	JudgementUpdate();
+	Grid_Update();
+	Start_Count_Update();
+	JudgementUpdate();
+	UI_Update();
+	RockUpdate();
+	//BrocksUpdate();
+	//FlagsUpdate();
+	//GoolUpdate();
 	//LineUpdate();
 }
 
@@ -95,15 +100,17 @@ void Game_Draw(void)
 	// --------------------------------
 	D3DXMATRIX mtxW;
 	D3DXMatrixIdentity(&mtxW);
-	Grid_Draw();
+	//Grid_Draw();
 	Map_Draw();
-	Player_Draw();
-	BrocksDraw();
-	FlagsDraw();
-	GoolDraw();
+	PlayerDraw();
+	//BrocksDraw();
+	//FlagsDraw();
+	//GoolDraw();
 	//LineDraw();
+	RockDraw();
 	Start_Count_Draw();
 	UI_Draw();
+	
 }
 
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
@@ -114,14 +121,15 @@ void Game_Finalize(void)
 	// --------------------------------
 	//  ここにゲームの終了関数を記述
 	// --------------------------------
-	Player_Uninit();
+	PlayerUninit();
+	RockUninit();
 	Grid_Uninit();
 	Map_Uninit();
 	Start_Count_Uninit();
 	UI_Uninit();
-	GoolUninit();
-	BrocksUninit();
-	FlagsUninit();
+	//GoolUninit();
+	//BrocksUninit();
+	//FlagsUninit();
 	Game_Manager_Uninit();
 	//PlayerUninit();
 	//LineUninit();

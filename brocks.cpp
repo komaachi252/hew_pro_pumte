@@ -100,7 +100,7 @@ void BrocksInit(void)
 		g_brock[i].draw = false;
 	}
 
-	g_model_id = Model_Load("rock.x");
+	//g_model_id = Model_Load("rock.x");
 }
 
 

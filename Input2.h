@@ -8,8 +8,6 @@
 // Used by Joystick.rc
 //
 
-<<<<<<< HEAD
-=======
 #define JOYCON_MAX     (2)
 
 #define SAFE_DELETE(p)  { if(p) { delete (p);     (p)=nullptr; } }
@@ -46,7 +44,6 @@
 #define IDC_POV2                        1043
 #define IDC_POV3                        1044
 
->>>>>>> 81cc111614e193111ef69219f9201b653f7f287c
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
@@ -58,12 +55,6 @@
 #endif
 #endif
 
-<<<<<<< HEAD
-/*
-JoyConNumber・・・0から始まるJoyConの番号
-　　　　　　　 　 接続した順番で決まる
-		  plus・・・マイナスをプラスにする
-=======
 
 HRESULT InitDirectInput(HWND hWnd);
 HRESULT UpdateInput(HWND hWnd);
@@ -74,37 +65,25 @@ void UninitDirectInput();
 JoyConNumber・・・0から始まるJoyConの番号
 　　　　　　　 　 接続した順番で決まる
 plus・・・マイナスをプラスにする
->>>>>>> 81cc111614e193111ef69219f9201b653f7f287c
 */
 float GetAxisX(int JoyConNumber, bool plus);
 
 /*
 JoyConNumber・・・0から始まるJoyConの番号
 　　　　　　　 　 接続した順番で決まる
-<<<<<<< HEAD
-		  plus・・・マイナスをプラスにする
-=======
 plus・・・マイナスをプラスにする
->>>>>>> 81cc111614e193111ef69219f9201b653f7f287c
 */
 float GetAxisY(int JoyConNumber, bool plus);
 
 /*
 JoyConNumber・・・0から始まるJoyConの番号
 　　　　　　　 　 接続した順番で決まる
-<<<<<<< HEAD
-		  plus・・・マイナスをプラスにする
-*/
-float GetAxisZ(int JoyConNumber, bool plus);
-
-=======
 plus・・・マイナスをプラスにする
 */
 float GetAxisZ(int JoyConNumber, bool plus);
 
 float GetLastAxisZ(int JoyConNumber, bool plus);
 
->>>>>>> 81cc111614e193111ef69219f9201b653f7f287c
 /*
 JoyConNumber・・・0から始まるJoyConの番号
 　　　　　　　 　 接続した順番で決まる
@@ -122,31 +101,6 @@ JoyConのボタン設定
 JoyConNumber・・・0から始まるJoyConの番号
 　　　　　　　 　 接続した順番で決まる
 		  　　　　　　
-<<<<<<< HEAD
-				BotonNumber ・・・
-				よこもちR[L]
-				0:右[上]
-				1:左[右]
-				2:上[左]
-				3:下[下]
-				4:R[L]
-				5:L[R]
-				6:(左下)L[(右下)L]
-				7:(左下)ZL[(右下)ZL]
-				8:マイナス
-				9:[プラス]
-				10[スティック押し込み]
-				11:スティック押し込み
-				12:[丸]
-				13:四角
-*/
-float GetBotton(int JoyConNumber, int BotonNumber);
-
-
-HRESULT InitDirectInput(HWND hWnd);
-HRESULT UpdateInput(HWND hWnd);
-void UninitDirectInput();
-=======
 BotonNumber ・・・
 よこもちR[L]
 0:右[上]
@@ -169,6 +123,5 @@ float GetBotton(int JoyConNumber, int BotonNumber);
 float GetRotY(int joyConNumber);
 float GetRotZ(int joyConNumber);
 float GetAxis(int JoyConNumber, bool plus);
->>>>>>> 81cc111614e193111ef69219f9201b653f7f287c
 
 #endif

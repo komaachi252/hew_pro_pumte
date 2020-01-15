@@ -1,126 +1,131 @@
 //★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡
 //
 //
-//	処理[Title_Logo.cpp]
+//	処理[menu_button_manager.cpp]
 //
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //                                                               作成者 矢吹一俊
-//                                                               作成日 11/11(月)
+//                                                               作成日 1/09(木)
 //★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡★彡
-#include "common.h"
-#include "sprite.h"
+#include "menu_button_manager.h"
+#include "input.h"
+#include "input2.h"
 #include "texture.h"
-#include "d3dx9.h"
-
+#include "sprite.h"
 
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
 //	定数定義
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-static const int TITLE_LOGO_WIDTH = 1280;
-static const int TITLE_LOGO_HEIGHT = 720;
 
 
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-//	クラス宣言
+//	クラス定義
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-class Title_Logo {
-private:
-	D3DXVECTOR2 m_pos;
-	int m_tex;
-	int m_press_tex;
-	int m_logo_tex;
-public:
-	Title_Logo(void);
-	~Title_Logo(void);
-	void Update(void);
-	void Draw(void);
-};
+
+
+//☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
+//	プロトタイプ宣言
+//☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
+
 
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
 //	グローバル変数宣言
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-static Title_Logo* gp_title_logo = nullptr;
+static Menu_Button_Manager* g_menu_button_mana = nullptr;
 
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
 //	初期化処理
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-void Title_Logo_Init(void)
+void Menu_Button_Manager_Init(void)
 {
-	gp_title_logo = new Title_Logo;
+	g_menu_button_mana = new Menu_Button_Manager();
 }
 
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
 //	終了処理
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-void Title_Logo_Uninit(void)
+void Menu_Button_Manager_Uninit(void)
 {
-	delete gp_title_logo;
+	delete g_menu_button_mana;
 }
 
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
 //	更新処理
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-void Title_Logo_Update(void)
+void Menu_Button_Manager_Update(void)
 {
-	gp_title_logo->Update();
+	g_menu_button_mana->Update();
 }
 
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
 //	描画処理
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-void Title_Logo_Draw(void)
+void Menu_Button_Manager_Draw(void)
 {
-	gp_title_logo->Draw();
+	g_menu_button_mana->Draw();
 }
 
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-//	Title_Logo コンストラクタ
+//	初期化処理
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-Title_Logo::Title_Logo(void)
+Menu_Button_Manager::Menu_Button_Manager(void)
 {
-	m_tex = Texture_SetLoadFile("Asset/Texture/タイトル.png", TITLE_LOGO_WIDTH, TITLE_LOGO_HEIGHT);
-	m_logo_tex = Texture_SetLoadFile("Asset/Texture/TRS.png", TITLE_LOGO_WIDTH, TITLE_LOGO_HEIGHT);
-	m_press_tex = Texture_SetLoadFile("Asset/Texture/PAK.png", TITLE_LOGO_WIDTH * 0.5f, TITLE_LOGO_HEIGHT * 0.5f);
+	m_play2_tex_id = Texture_SetLoadFile("Asset/Texture/s.png", PLAY2_TEX_WIDTH, PLAY2_TEX_HEIGHT);
+	m_play4_tex_id = Texture_SetLoadFile("Asset/Texture/t.png", PLAY4_TEX_WIDTH, PLAY4_TEX_HEIGHT);
+	m_cur_tex_id = Texture_SetLoadFile("Asset/Texture/cursur.png", PLAY4_TEX_WIDTH, PLAY4_TEX_HEIGHT);
 	Texture_Load();
+	m_play2_x = 100.0f;
+	m_play2_y = 150.0f;
+	m_play4_x = 680.0f;
+	m_play4_y = 150.0f;
 
-	//  中心座標
-	m_pos = D3DXVECTOR2(SCREEN_WIDTH * 0.5f, SCREEN_HEIGHT * 0.5f);
-}
+	m_buttons[0] = new Menu_Button(m_play2_tex_id, m_play2_x, m_play2_y, PLAY2_WIDTH, PLAY2_HEIGHT);
+	m_buttons[1] = new Menu_Button(m_play4_tex_id, m_play4_x, m_play4_y, PLAY4_WIDTH, PLAY4_HEIGHT);
 
-
-
-
-
-//☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-//	Title_Logo デストラクタ
-//☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-Title_Logo::~Title_Logo(void)
-{
-	Texture_Destroy(&m_tex, 1);
+	m_c = false;
 }
 
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-//	Title_Logo更新処理
+//	初期化処理
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-void Title_Logo::Update(void)
+Menu_Button_Manager::~Menu_Button_Manager(void)
 {
-	//  座標変えるのかなー
+	Texture_Destroy(&m_play2_tex_id, 1);
+	Texture_Destroy(&m_play4_tex_id, 1);
+	
+	for (int i = 0; i < BUTTON_MAX; i++) {
+		delete m_buttons[i];
+	}
 }
 
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-//	Title_Logo描画処理
+//	初期化処理
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-void Title_Logo::Draw(void)
+void Menu_Button_Manager::Update(void)
 {
-	//  中心座標→左上座標
-	float tx, ty;
-	tx = m_pos.x - (TITLE_LOGO_WIDTH * 0.5f);
-	ty = m_pos.y - (TITLE_LOGO_HEIGHT * 0.5f);
-	Sprite_Draw(m_tex, 0, 0);
+	for (int i = 0; i < BUTTON_MAX; i++) {
+		m_buttons[i]->Update();
+	}
+	if (Keyboard_IsTrigger(DIK_RIGHT) && !m_c){
+		m_c = true;
+	}
+	if (Keyboard_IsTrigger(DIK_LEFT) && m_c) {
+		m_c = false;
+	}
+}
 
-
-	Sprite_Draw(m_logo_tex, 0, 0);
-	Sprite_Draw(m_press_tex, 320, 400);
-
-
+//☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
+//	描画処理
+//☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
+void Menu_Button_Manager::Draw(void)
+{
+	for (int i = 0; i < BUTTON_MAX; i++) {
+		m_buttons[i]->Draw();
+	}
+	if (m_c) {
+		Sprite_Draw(m_cur_tex_id, m_play4_x, m_play4_y, PLAY2_TEX_WIDTH, PLAY2_TEX_HEIGHT);
+	}
+	else {
+		Sprite_Draw(m_cur_tex_id, m_play2_x, m_play2_y, PLAY2_TEX_WIDTH, PLAY2_TEX_HEIGHT);
+	}
 }
