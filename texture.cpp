@@ -15,7 +15,7 @@
 	É}ÉNÉçíËã`
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 #define FILENAME_MAX    (128)
-#define TEXTUREDATA_MAX  (64)
+#define TEXTUREDATA_MAX  (128)
 
 
 

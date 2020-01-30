@@ -15,6 +15,7 @@
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
 //	定数定義
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
+#define WATER_MAX (86) //	水タイルの数
 
 
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
@@ -30,5 +31,7 @@ void Map_Init(void);	//初期化関数
 void Map_Uninit(void);	//終了処理関数
 void Map_Update(void);	//更新処理
 void Map_Draw(void);    //描画処理
-
+float Player_Y(void);
+float Map_Player_Angle(void);
+int Get_Map_Index(void);
 #endif

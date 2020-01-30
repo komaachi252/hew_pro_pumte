@@ -36,7 +36,8 @@ void Progress_Init()
 }
 void Progress_Uninit(void)
 {
-	Texture_Destroy();																												//テクスチャ解放
+	Texture_Destroy(&g_progressTex[PROGRESS_FRAME], 1);																												//テクスチャ解放
+	Texture_Destroy(&g_progressTex[PROGRESS_ICON], 1);																												//テクスチャ解放
 }
 void Progress_Update(void)
 {

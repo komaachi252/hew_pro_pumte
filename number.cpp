@@ -52,6 +52,7 @@ void Number_Init()
 //™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™
 void Number_Uninit(void)
 {
+	Texture_Destroy(&tex, 1);
 
 
 }

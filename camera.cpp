@@ -122,8 +122,8 @@ void CameraUpdate()
 	//カメラセット
 	g_camera.at = player->pos + player->vecFront*2;
 	//g_camera.at = D3DXVECTOR3(0.0f,0.0f,0.0f);
-	g_camera.eye = player->pos - g_camera.vec_flont * 10;
-	g_camera.up = g_camera.vec_up;
+	g_camera.eye = player->pos - g_camera.vec_flont * 5;
+	g_camera.up = player->vecUp;
 
 
 
@@ -135,7 +135,7 @@ void CameraUpdate()
 		D3DXToRadian(60),//画角
 		(float)SCREEN_WIDTH / SCREEN_HEIGHT,//アスペクト比
 		0.1f,//ニア
-		100.0f//ファー
+		200.0f//ファー
 	);
 	g_cameraDevice->SetTransform(D3DTS_PROJECTION, &g_camera.mtxProjection);
 	//g_cameraAngleY *= 0.98f;
@@ -159,6 +159,7 @@ camera* CameraGet()
 {
 	return &g_camera;
 }
+
 void Camera_2D(void)
 {
 	D3DXMATRIX mtxView;
@@ -173,6 +174,20 @@ void Camera_2D(void)
 	GetDevice()->SetTransform(D3DTS_PROJECTION, &mtxProjection);
 }
 
+D3DXVECTOR3* Get_Camera_Pos(void)
+{
+	return &g_camera.eye;
+}
+
+D3DXVECTOR3* Get_Camera_At(void)
+{
+	return &g_camera.at;
+}
+
+D3DXVECTOR3* Get_Camera_Up(void)
+{
+	return &g_camera.up;
+}
 
 
 

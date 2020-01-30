@@ -16,6 +16,7 @@ typedef enum
 	SOUND_LABEL_BGM_GAME = 0,			// BGM　ゲーム画面
 	SOUND_LABEL_BGM_TITLE,				// BGM　タイトル画面
 	SOUND_LABEL_BGM_MENU,				// BGM　メニュー画面
+	SOUND_LABEL_BGM_TUTORIAL,				// BGM　メニュー画面
 	SOUND_LABEL_BGM_RANKIN,				// BGM　ランキング画面
 	SOUND_LABEL_SE_CANCEL,				// SE   キャンセル音
 	SOUND_LABEL_SE_HIT1,				// SE　 衝突音　その1
@@ -27,6 +28,8 @@ typedef enum
 	SOUND_LABEL_SE_SWITCH,				// SE	メニュー画面でのカーソル切り替え音
 	SOUND_LABEL_SE_TITLE,				// SE　 タイトル画面での決定音
 	SOUND_LABEL_SE_GATE,				// SE　 ゲート通過音
+	SOUND_LABEL_SE_WHISTLE,				// SE　 ゲート通過音
+	SOUND_LABEL_SE_COUNT,				// SE　 ゲート通過音
 	SOUND_LABEL_MAX,					// BGM&SEの数
 } SOUND_LABEL;
 

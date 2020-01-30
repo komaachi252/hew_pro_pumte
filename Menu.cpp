@@ -14,6 +14,8 @@
 #include "fade.h"
 #include "camera.h"
 #include "menu_button_manager.h"
+#include "menu_back.h"
+#include "sound.h"
 
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
 //	定数定義
@@ -33,12 +35,13 @@ void Menu_Initialize(void)
 	// --------------------------------
 	//  初期化関数を記述
 	// --------------------------------
-	//  JKimouto_Initialize();
-	//  Mama_Initialize();
+	StopSound(SOUND_LABEL_BGM_TITLE);
+	PlaySound(SOUND_LABEL_BGM_MENU);
 
 	Menu_Manager_Init();
 	Menu_Logo_Init();
 	Menu_Button_Manager_Init();
+	Menu_Back_Init();
 	Camera_2D();
 	Fade_Start(60, D3DCOLOR_RGBA(0, 0, 0, 0), false);
 
@@ -52,9 +55,10 @@ void Menu_Update(void)
 	// --------------------------------
 	//  更新関数を記述
 	// --------------------------------
-	Menu_Manager_Update();
 	Menu_Logo_Update();
+	Menu_Back_Update();
 	Menu_Button_Manager_Update();
+	Menu_Manager_Update();
 }
 
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
@@ -66,6 +70,7 @@ void Menu_Draw(void)
 	//  描画関数を記述
 	// --------------------------------
 	//Menu_Logo_Draw();
+	Menu_Back_Draw();
 	Menu_Button_Manager_Draw();
 }
 
@@ -80,4 +85,5 @@ void Menu_Finalize(void)
 	Menu_Logo_Uninit();
 	Menu_Manager_Uninit();
 	Menu_Button_Manager_Uninit();
+	Menu_Back_Uninit();
 }

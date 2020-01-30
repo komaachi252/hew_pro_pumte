@@ -10,7 +10,7 @@
 #include "input.h"
 #include "fade.h"
 #include "scene.h"
-
+#include "menu_button_manager.h"
 #include <d3d9.h>
 
 //™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™
@@ -83,11 +83,11 @@ Menu_Manager::~Menu_Manager(void)
 //™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™
 void Menu_Manager::Update(void)
 {
-	if (Keyboard_IsTrigger(DIK_RETURN) && !m_is_fade) {
+	if (Is_Next_Scene_Menu_Button_Manager() && !m_is_fade) {
 		Fade_Start(FADE_FRAME, FADE_COLOR, true);
 		m_is_fade = true;
 	}
 	if (m_is_fade && !Fade_IsFade()) {
-		Set_Scene(SCENE_GAME);
+		Set_Scene(SCENE_TUTORIAL);
 	}
 }

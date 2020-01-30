@@ -13,6 +13,7 @@
 #include "Result_Logo.h"
 #include "fade.h"
 #include "camera.h"
+#include "sound.h"
 
 //™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™
 //	’è”’è‹`
@@ -34,7 +35,8 @@ void Result_Initialize(void)
 	// --------------------------------
 	//  Jkimouto_Initialize();
 	//  Mama_Initialize();
-
+	StopSound(SOUND_LABEL_BGM_GAME);
+	PlaySound(SOUND_LABEL_BGM_RANKIN);
 
 	Result_Manager_Init();
 	Result_Logo_Init();

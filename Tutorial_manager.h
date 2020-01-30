@@ -29,5 +29,6 @@
 void Tutorial_Manager_Init(void);	//‰Šú‰»ŠÖ”
 void Tutorial_Manager_Uninit(void);	//I—¹ˆ—ŠÖ”
 void Tutorial_Manager_Update(void);	//XVˆ—
+void Tutorial_Manager_Draw(void);
 
 #endif	//	!TUTORIAL_MANAGER_H_

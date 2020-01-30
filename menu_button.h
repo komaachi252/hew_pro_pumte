@@ -29,11 +29,14 @@ private:
 	float m_y;
 	float m_width;
 	float m_height;
+	float m_sin;
+	bool m_is_scale;
 public:
 	Menu_Button(int tex_id, float x, float y, float width, float height);
 	~Menu_Button(void);
 	void Update(void);
 	void Draw(void);
+	void Set_Scale_Mode(bool is_scale);
 };
 
 #endif	//	!MENU_BUTTON_H_

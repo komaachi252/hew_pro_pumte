@@ -23,13 +23,7 @@
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
 //	クラス宣言
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-typedef struct WaterVertex_tag {
-	D3DXVECTOR3 position;
-	D3DXVECTOR3 normal;
-	D3DCOLOR color;
-	D3DXVECTOR2 uv;
 
-}WaterVertex;
 
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
 //	プロトタイプ宣言
@@ -98,6 +92,10 @@ void Water::Draw(int tex_id, const D3DXMATRIX& mtx)
 	pDevice->SetTransform(D3DTS_WORLD, &mtx);
 	pDevice->SetFVF(FVF_WATER);
 	LPDIRECT3DTEXTURE9 pTexture = Texture_GetTexture(tex_id);
+
+	//  テクスチャ反復モード
+	pDevice->SetSamplerState(0, D3DSAMP_ADDRESSU, D3DTADDRESS_CLAMP);
+	pDevice->SetSamplerState(0, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP);
 
 	pDevice->SetTexture(0, pTexture);
 	pDevice->SetRenderState(D3DRS_LIGHTING, FALSE);

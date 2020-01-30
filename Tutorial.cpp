@@ -1,7 +1,7 @@
 //šœcšœcšœcšœcšœcšœcšœcšœcšœcšœcšœcšœcšœcšœcšœcšœcšœcšœcšœcšœc
 //
 //
-//	ƒƒjƒ…[ˆ—[Tutorial.cpp]
+//	ƒ`ƒ…[ƒgƒŠƒAƒ‹ˆ—[Tutorial.cpp]
 //
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //                                                               ì¬Ò –îˆêr
@@ -13,6 +13,18 @@
 #include "Tutorial_Logo.h"
 #include "fade.h"
 #include "camera.h"
+#include "player.h"
+#include "sky_dome.h"
+#include "TutoJudgement.h"
+#include "MapArea.h"
+#include "Tuto_rock.h"
+#include "tutorial_player.h"
+#include "tutocamera.h"
+#include "TutoMapArea.h"
+#include "light.h"
+#include "TutoFlag.h"
+#include "Tutorial.h"
+#include "sound.h"
 
 //™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™
 //	’è”’è‹`
@@ -32,12 +44,18 @@ void Tutorial_Initialize(void)
 	// --------------------------------
 	//  ‰Šú‰»ŠÖ”‚ğ‹Lq
 	// --------------------------------
-	//  JKimouto_Initialize();
-	//  Mama_Initialize();
+	Light_Init();
+	TutoRockInit();
+	TutoMapAreaInit();
 
+	TutoPlayerInit();
+	TutoFlagInit();
+	TutoCameraInit();
 	Tutorial_Manager_Init();
 	Tutorial_Logo_Init();
-	Camera_2D();
+	TutoJudgementInit();
+	StopSound(SOUND_LABEL_BGM_MENU);
+	PlaySound(SOUND_LABEL_BGM_TUTORIAL);
 	Fade_Start(60, D3DCOLOR_RGBA(0, 0, 0, 0), false);
 
 }
@@ -50,8 +68,15 @@ void Tutorial_Update(void)
 	// --------------------------------
 	//  XVŠÖ”‚ğ‹Lq
 	// --------------------------------
-	Tutorial_Manager_Update();
+	TutoJudgementUpdate();
+
 	Tutorial_Logo_Update();
+	TutoPlayerUpdate();
+	TutoCameraUpdate();
+	TutoRockUpdate();
+	TutoFlagUpdate();
+
+	Tutorial_Manager_Update();
 }
 
 //™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™
@@ -62,7 +87,11 @@ void Tutorial_Draw(void)
 	// --------------------------------
 	//  •`‰æŠÖ”‚ğ‹Lq
 	// --------------------------------
-	Tutorial_Logo_Draw();
+
+	TutoPlayerDraw();
+	TutoRockDraw();
+	TutoFlagDraw();
+	Tutorial_Manager_Draw();
 }
 
 //™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™
@@ -73,6 +102,12 @@ void Tutorial_Finalize(void)
 	// --------------------------------
 	//  I—¹ŠÖ”‚ğ‹Lq
 	// --------------------------------
+
 	Tutorial_Logo_Uninit();
 	Tutorial_Manager_Uninit();
+	TutoPlayerUninit();
+	TutoCameraUninit();
+	TutoMapAreaUninit();
+	TutoRockUninit();
+	TutoFlagUninit();
 }

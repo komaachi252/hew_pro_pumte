@@ -33,4 +33,7 @@ void CameraAddAngleX(float angle);
 void CameraAddAngleY(float angle);
 camera* CameraGet();
 void Camera_2D(void);
+D3DXVECTOR3* Get_Camera_Pos(void);
+D3DXVECTOR3* Get_Camera_At(void);
+D3DXVECTOR3* Get_Camera_Up(void);
 #endif // !CAMERA_H_

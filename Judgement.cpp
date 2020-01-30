@@ -1,7 +1,9 @@
 #include<d3dx9.h>
 #include"Judgement.h"
 #include"player.h"
+#include "flag.h"
 static ForcusSpheresIsSpheres *g_coliPlayerIsRock;
+static ForcusSpheresIsSpheres *g_coliPlayerIsMapArea;
 
 
 float Vec3Lenth(D3DXVECTOR3 vec)
@@ -18,10 +20,13 @@ float Vec2Lenth(D3DXVECTOR2 vec)
 void JudgementInit(void)
 {
 	g_coliPlayerIsRock = PlayerGet()->IsRock;
+	g_coliPlayerIsMapArea = PlayerGet()->IsMapArea;
 }
 void JudgementUpdate(void)
 {
 	g_coliPlayerIsRock->Update();
+	g_coliPlayerIsMapArea->Update();
+	FlagsGet()->ColiUpdate();
 }
 bool FieldInFlag(D3DXVECTOR3 pos)
 {
@@ -132,7 +137,7 @@ Forcus::~Forcus()
 }
 void ForcusSphereIsSphere::Update()
 {
-	forcus.past = forcus.past;
+	forcus.past = forcus.now;
 
 	D3DXMATRIX mtx = A->mtxT * (*A->mtxW);
 	D3DXVECTOR3 upPosA(mtx._41, mtx._42, mtx._43);
@@ -176,6 +181,7 @@ void ForcusSpheresIsSphere::Update()
 	float lenge_lenth;
 	Spheres *now = A;
 	bool end = false;
+	forcus.past = forcus.now;
 	while (end == false)
 	{
 		//ローカル座標行列＊ワールド空間行列
@@ -291,6 +297,87 @@ void ForcusSpheresIsSpheres::Update()
 			{
 				//リストの最後でないなら
 				focusB = focusB->next;
+				updateB = true;
+			}
+		}
+	}
+}
+void ForcusSpheresIsSpheres::Update(int b_num)
+{
+	int cnt = 0;
+	D3DXMATRIX mtxA, mtxB;
+	float lenge_lenth;
+	Spheres *focusA = A;
+	Spheres *focusB = B;
+	bool updateA, updateB;//行列の更新をするかどうか
+
+	D3DXVECTOR3 upPosA;
+	D3DXVECTOR3 upPosB;
+
+	bool end = false;
+	updateA = true;
+	updateB = true;
+
+
+	focus.past = focus.now;
+	focus.now = false;
+
+	while (end == false)
+	{
+		if (cnt >= b_num) {
+			return;
+		}
+
+		if (updateA == true)
+		{
+			mtxA = focusA->me->mtxT * (*focusA->me->mtxW);
+			upPosA = D3DXVECTOR3(mtxA._41, mtxA._42, mtxA._43);
+		}
+		//ローカル座標行列＊ワールド空間行列
+		if (updateB == true)
+		{
+			mtxB = focusB->me->mtxT * (*focusB->me->mtxW);
+			upPosB = D3DXVECTOR3(mtxB._41, mtxB._42, mtxB._43);
+		}
+
+
+
+		LineSet(upPosA + D3DXVECTOR3(0.0f, 3.0f, 0.0f), upPosA);
+		lenge_lenth = Vec3Lenth(upPosA - upPosB);
+		if (lenge_lenth <= focusA->me->lenth + focusB->me->lenth)
+		{
+			//当たっているとき
+			focus.now = true;
+			end = true;
+		}
+		else
+		{
+			//当っていないとき
+			updateA = false;
+			updateB = false;
+			if (focusB->next == nullptr)
+			{
+				if (focusA->next == nullptr)
+				{
+
+					//リストの最後なら
+
+					end = true;
+				}
+				else
+				{
+					//リストの最後でないなら
+					focusA = focusA->next;
+					focusB = B;
+					updateA = true;
+					updateB = true;
+				}
+			}
+			else
+			{
+				//リストの最後でないなら
+				focusB = focusB->next;
+				cnt++;
 				updateB = true;
 			}
 		}

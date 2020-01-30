@@ -20,12 +20,15 @@
 #include "model.h"
 #include "camera.h"
 #include "fade.h"
+#include "sound.h"
+#include "data.h"
+#include "effect.h"
 
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
 //	定数定義
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
 #define CLASS_NAME     "GameWindow"
-#define WINDOW_CAPTION "カヌー"
+#define WINDOW_CAPTION "Top Relation Ship!"
 #define WINDOW_STYLE  (WS_OVERLAPPEDWINDOW ^ (WS_THICKFRAME | WS_MAXIMIZEBOX)) //ウィンドウのスタイルを定義
 #define FPS_MEASUREMENT_TIME (1.0f)
 
@@ -189,15 +192,21 @@ bool Window::Initialize(void)
 	DebugFont_Initialize();
 
 	Keyboard_Initialize(hInstance,hWnd);
-	//CameraInit();
 
 	Fade_Init();
 
+	Data_Init();
+
+	InitSound(hWnd);
+
+	Effect_Init();
+
 	// 最後にSet_Sceneでタイトル
-	Set_Scene(SCENE_TITLE);
+	//Set_Scene(SCENE_TITLE);
+	//Set_Scene(SCENE_MENU);
 	//Set_Scene(SCENE_GAME);
-
-
+	Set_Scene(SCENE_TUTORIAL);
+	
 	return true;
 }
 
@@ -300,6 +309,12 @@ void Window::Finalize(void)
 	DebugFont_Finalize();
 
 	D3D_Finalize();
+
+	UninitSound();
+
+	Data_Uninit();
+
+	Efffect_Uninit();
 }
 
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆

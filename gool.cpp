@@ -7,6 +7,7 @@
 #include<d3d9.h>
 #include "model.h"
 
+/*
 #define FVF_GOOL (  D3DFVF_XYZ  | D3DFVF_DIFFUSE | D3DFVF_NORMAL)
 
 //’¸“_\‘¢‘ÌéŒ¾
@@ -165,3 +166,4 @@ bool GoolGetCrear(void)
 {
 	return g_crear;
 }
+*/

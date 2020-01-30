@@ -13,6 +13,7 @@
 #include "camera.h"
 #include "Title_manager.h"
 #include "fade.h"
+#include "sound.h"
 
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
 //	定数定義
@@ -32,10 +33,11 @@ void Title_Initialize(void)
 	// --------------------------------
 	//  ここにタイトルの初期化関数を記述
 	// --------------------------------
-	//  JKimouto_Initialize();
-	//  Mama_Initialize();
 	Title_Logo_Init();
 	Title_Manager_Init();
+
+	StopSound(SOUND_LABEL_BGM_RANKIN);
+	PlaySound(SOUND_LABEL_BGM_TITLE);
 
 	//	タイトル画面は2D
 	Camera_2D();

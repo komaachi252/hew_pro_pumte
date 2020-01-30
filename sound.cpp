@@ -36,6 +36,7 @@ SOUNDPARAM g_aParam[SOUND_LABEL_MAX] =
 	{"Asset/Sounds/game_bgm.wav", -1},		// BGM0		-1Ç≈ñ≥å¿ÉãÅ[ÉvÅ@0Ç≈1âÒçƒê∂
 { "Asset/Sounds/title_bgm.wav", -1 },		
 { "Asset/Sounds/menu_bgm.wav", -1 },		
+{ "Asset/Sounds/tuto.wav", -1 },		
 { "Asset/Sounds/rankin_bgm.wav", -1 },		
 { "Asset/Sounds/cancel_se.wav", 0 },		
 { "Asset/Sounds/hit1_se.wav", 0 },		
@@ -43,10 +44,12 @@ SOUNDPARAM g_aParam[SOUND_LABEL_MAX] =
 { "Asset/Sounds/menu_se.wav", 0 },		
 { "Asset/Sounds/rankin_se.wav", 0 },		
 { "Asset/Sounds/ranking_se.wav", 0 },		
-{ "Asset/Sounds/splash_se.wav", 0 },		
+{ "Asset/Sounds/splash_se2.wav", 0 },		
 { "Asset/Sounds/switch_se.wav", 0 },		
 { "Asset/Sounds/title_se.wav", 0 },		
-{ "Asset/Sounds/gate_se.wav", 0 },		
+{ "Asset/Sounds/gate_se.wav", 0 },
+{ "Asset/Sounds/whistle.wav", 0 },
+{ "Asset/Sounds/count.wav", 0 },
 
 };
 

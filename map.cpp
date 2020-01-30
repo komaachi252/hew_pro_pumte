@@ -10,11 +10,16 @@
 #include "water.h"
 #include "ground.h"
 #include "texture.h"
+#include "player.h"
+#include <float.h>
+#include "debug_font.h"
+#include "model.h"
+#include "direct3d.h"
+#include "map.h"
 
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
 //	定数定義
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-#define WATER_MAX (86) //	水タイルの数
 
 enum WATER_TYPE
 {
@@ -37,6 +42,11 @@ class Map {
 public:
 	virtual void Draw(void) = 0;
 	virtual void Update(void) = 0;
+	virtual float Player_Y(void) = 0;
+	virtual bool Search_Y(void) = 0;
+	virtual float Player_Angle(void) = 0;
+	virtual void Draw_Obj(void) = 0;
+	virtual int Get_Index(void) = 0;
 };
 
 class Map_Sprint : public Map {
@@ -44,13 +54,25 @@ private:
 	int m_water_tex_id;
 	int m_L_tex_id;
 	int m_R_tex_id;
+	int m_kusa_id;
+	int m_nanakusa_id;
+	int m_marukusa_id;
+	int m_komachi_id;
+	float m_player_y;
 	Water* m_water;
+	float m_player_angle;
 	Water_Matrix m_water_mtx[WATER_MAX];
+	int m_index;
 public:
 	Map_Sprint(void);
 	~Map_Sprint(void);
 	void Draw(void);
 	void Update(void);
+	float Player_Y(void);
+	float Player_Angle(void);
+	bool Search_Y(void);
+	void Draw_Obj(void);
+	int Get_Index(void);
 };
 
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
@@ -97,13 +119,49 @@ void Map_Draw(void)
 }
 
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
+//	描画処理
+//☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
+float Player_Y(void)
+{
+	if (gp_map == nullptr) {
+		return 0.0f;
+	}
+	return gp_map->Player_Y();
+}
+
+//☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
+//	描画処理
+//☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
+float Map_Player_Angle(void)
+{
+	return gp_map->Player_Angle();
+}
+
+//☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
+//	描画処理
+//☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
+int Get_Map_Index(void)
+{
+	return gp_map->Get_Index();
+}
+
+int Map_Sprint::Get_Index(void)
+{
+	return m_index;
+}
+
+//☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
 //	Map_Sprint コンストラクタ
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
 Map_Sprint::Map_Sprint(void)
 {
-	m_water_tex_id = Texture_SetLoadFile("Asset/Texture/kawa.png", 0, 0);
-	m_L_tex_id = Texture_SetLoadFile("Asset/Texture/l_kawa.png", 0, 0);
-	m_R_tex_id = Texture_SetLoadFile("Asset/Texture/r_kawa.png", 0, 0);
+	m_water_tex_id = Texture_SetLoadFile("Asset/Texture/kawaline.png", 0, 0);
+	m_L_tex_id = Texture_SetLoadFile("Asset/Texture/kawaleft.png", 0, 0);
+	m_R_tex_id = Texture_SetLoadFile("Asset/Texture/kawaright.png", 0, 0);
+	m_kusa_id = Model_Load("kusa.x");
+	m_nanakusa_id = Model_Load("nanakusa.x");
+	m_marukusa_id = Model_Load("marukusa.x");
+	m_komachi_id = Model_Load("komachi.x");
 	Texture_Load();
 	
 	m_water = new Water(); //	実体は１個でいい
@@ -117,6 +175,8 @@ Map_Sprint::Map_Sprint(void)
 	float x = 0.0f;
 	float y = 0.0f;
 	float z = 0.0f;
+
+	m_player_y = 0.0f;
 
 	//	１枚目
 
@@ -772,6 +832,14 @@ Map_Sprint::Map_Sprint(void)
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
 Map_Sprint::~Map_Sprint(void)
 {
+	Texture_Destroy(&m_water_tex_id, 1);
+	Texture_Destroy(&m_L_tex_id, 1);
+	Texture_Destroy(&m_R_tex_id, 1);
+	Model_Destroy(&m_kusa_id, 1);
+	Model_Destroy(&m_nanakusa_id, 1);
+	Model_Destroy(&m_marukusa_id, 1);
+	Model_Destroy(&m_komachi_id, 1);
+	
 	delete m_water;
 }
 
@@ -780,7 +848,120 @@ Map_Sprint::~Map_Sprint(void)
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
 void Map_Sprint::Update(void)
 {
+	Search_Y();
+}
 
+//☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
+//	Map_Sprint更新処理
+//☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
+float Map_Sprint::Player_Y(void)
+{
+	return m_player_y;
+}
+
+//☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
+//	Map_Sprint更新処理
+//☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
+float Map_Sprint::Player_Angle(void)
+{
+	return m_player_angle;
+}
+
+
+
+//☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
+//	Map_Sprint更新処理
+//☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
+bool Map_Sprint::Search_Y(void)
+{
+	// プレイヤーの座標から対象のメッシュを探査
+	D3DXVECTOR3 p_pos(PlayerGet()->mtxWorld._41, PlayerGet()->mtxWorld._42, PlayerGet()->mtxWorld._43);
+
+	float min_dist = FLT_MAX;
+	int min_index = WATER_MAX;
+	for (int i = 0; i < WATER_MAX; i++) {
+		if (min_dist > fabsf((m_water_mtx[i].mtx._41 - p_pos.x) * (m_water_mtx[i].mtx._41 - p_pos.x) + (m_water_mtx[i].mtx._43 - p_pos.z) * (m_water_mtx[i].mtx._43 - p_pos.z))) {
+			min_dist = fabsf((m_water_mtx[i].mtx._41 - p_pos.x) * (m_water_mtx[i].mtx._41 - p_pos.x) + (m_water_mtx[i].mtx._43 - p_pos.z) * (m_water_mtx[i].mtx._43 - p_pos.z));
+			min_index = i;
+		}
+	}
+	if (min_index == WATER_MAX) {
+		return false;
+	}
+
+	// 対象メッシュの行列で頂点を変換
+	WaterVertex* vtx_ptr;
+	m_water->m_vertex_buffer_ptr->Lock(0, 0, (void**)&vtx_ptr, D3DLOCK_DISCARD);
+
+	D3DXVECTOR3 vertex_pos[4];
+
+	for (int i = 0; i < 4; i++) {
+		vertex_pos[i] = vtx_ptr[i].position;
+		D3DXVec3TransformNormal(&vertex_pos[i], &vertex_pos[i], &m_water_mtx[min_index].mtx);
+		vertex_pos[i] += D3DXVECTOR3(m_water_mtx[min_index].mtx._41, m_water_mtx[min_index].mtx._42, m_water_mtx[min_index].mtx._43);
+	}
+
+	m_water->m_vertex_buffer_ptr->Unlock();
+
+	//　法線を作る
+	D3DXVECTOR3 AB_vec(vertex_pos[1].x - vertex_pos[0].x, vertex_pos[1].y - vertex_pos[0].y, vertex_pos[1].z - vertex_pos[0].z);
+
+	D3DXVECTOR3 BC_vec(vertex_pos[2].x - vertex_pos[0].x, vertex_pos[2].y - vertex_pos[0].y, vertex_pos[2].z - vertex_pos[0].z);
+	D3DXVec3Normalize(&AB_vec, &AB_vec);
+	D3DXVec3Normalize(&BC_vec, &BC_vec);
+
+	D3DXVECTOR3 normal;
+	D3DXVec3Cross(&normal, &AB_vec, &BC_vec);
+
+	if (normal.y < 0.0f) {
+		normal.x *= -1.0f;
+		normal.y *= -1.0f;
+		normal.z *= -1.0f;
+	}
+	D3DXVec3Normalize(&normal, &normal);
+	//	頂点Aを基準に点Ｏ(プレイヤー座標)のy座標を算出
+
+	//	divideが0ならば頂点のＹ座標に合わせる
+	float divide = normal.y * ((normal.x * (p_pos.x - vertex_pos[1].x)) + (normal.z * (p_pos.z - vertex_pos[1].z)));
+	if (divide == 0.0f) {
+		m_player_y = vertex_pos[1].y;
+		m_index = min_index;
+	}
+	if (divide != 0.0f) {
+		m_player_y = vertex_pos[1].y - (1.0f / normal.y * ((normal.x * (p_pos.x - vertex_pos[1].x)) + (normal.z * (p_pos.z - vertex_pos[1].z))));
+		m_index = min_index;
+	}
+
+	//	プレイヤーの法線と水の法線のなす角を検出
+	D3DXVECTOR3 p_up_vec = PlayerGet()->vecUp;
+
+	//p_up_vec = D3DXVECTOR3(0, 1, 0);
+
+	float angle = acosf(D3DXVec3Dot(&normal, &p_up_vec));
+
+	//	1度未満の角度は代入しない
+	if (fabs(angle) < D3DXToRadian(1)) {
+		m_player_angle = 0.0f;
+		return true;
+	}
+
+	if (fabs(angle) < D3DXToRadian(5)) {
+		m_player_angle = angle;
+		return true;
+	}
+	
+	D3DXVECTOR3 cross;
+
+	D3DXVec3Cross(&cross, &normal, &p_up_vec);
+
+	if (cross.y > 0.0f) {
+		m_player_angle = D3DXToRadian(5);
+	}
+	else {
+		m_player_angle = -D3DXToRadian(5);
+	}
+
+	return true;
 }
 
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
@@ -788,6 +969,10 @@ void Map_Sprint::Update(void)
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
 void Map_Sprint::Draw(void)
 {
+	//GetDevice()->SetRenderState(D3DRS_LIGHTING, TRUE);
+	Draw_Obj();
+	
+	//GetDevice()->SetRenderState(D3DRS_ZWRITEENABLE, FALSE);
 	for (int i = 0; i < WATER_MAX; i++) {
 		switch (m_water_mtx[i].type)
 		{
@@ -804,4 +989,1014 @@ void Map_Sprint::Draw(void)
 			break;
 		}
 	}
+	//GetDevice()->SetRenderState(D3DRS_ZWRITEENABLE, TRUE);
+
+	DebugFont_Draw(10, 500, "%3.3f", m_player_y);
+	DebugFont_Draw(10, 550, "%d", m_index);
+	DebugFont_Draw(10, 600, "%3.3f", m_player_angle);
+
+}
+
+//☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
+//	Map_Sprint描画処理
+//☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
+void Map_Sprint::Draw_Obj(void)
+{
+	D3DXMATRIX mtx_trans, mtx_rot, mtx_scale, mtx_world;
+
+	{//後ろ
+		D3DXMatrixTranslation(&mtx_trans, 15.0f, -0.001f, -25.0f);
+		D3DXMatrixScaling(&mtx_scale, 2.0f, 2.0f, 2.0f);
+		mtx_world = mtx_scale * mtx_trans;
+
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, -15.0f, -0.001f, -25.0f);
+		D3DXMatrixScaling(&mtx_scale, 2.0f, 2.0f, 2.0f);
+		mtx_world = mtx_scale * mtx_trans;
+
+		Model_Draw(m_kusa_id, mtx_world);
+	}
+
+	D3DXMatrixTranslation(&mtx_trans, 25.0f, -0.001f, 15.0f);
+	D3DXMatrixRotationY(&mtx_rot, 0.0f);
+	D3DXMatrixScaling(&mtx_scale, 2.0f, 2.0f, 2.0f);
+	mtx_world = mtx_scale * mtx_trans;
+
+	Model_Draw(m_kusa_id, mtx_world);
+
+	D3DXMatrixTranslation(&mtx_trans, 50.0f, -0.005f, 16.0f);
+	D3DXMatrixRotationY(&mtx_rot, 0.0f);
+	D3DXMatrixScaling(&mtx_scale, 2.0f, 2.0f, 2.0f);
+	mtx_world = mtx_scale * mtx_trans;
+
+	Model_Draw(m_kusa_id, mtx_world);
+
+	D3DXMatrixTranslation(&mtx_trans, 50.0f, -0.005f, 17.0f);
+	D3DXMatrixRotationY(&mtx_rot, D3DXToRadian(30));
+	D3DXMatrixScaling(&mtx_scale, 2.0f, 2.0f, 2.0f);
+	mtx_world = mtx_rot * mtx_scale * mtx_trans;
+
+	Model_Draw(m_kusa_id, mtx_world);
+
+	D3DXMatrixTranslation(&mtx_trans, 64.0f, -0.1f, 48.0f);
+	D3DXMatrixRotationY(&mtx_rot, 0.0f);
+	D3DXMatrixScaling(&mtx_scale, 2.0f, 2.0f, 2.0f);
+	mtx_world = mtx_scale * mtx_trans;
+
+	Model_Draw(m_kusa_id, mtx_world);
+
+	D3DXMatrixTranslation(&mtx_trans, 64.0f, -0.1f, 88.0f);
+	D3DXMatrixScaling(&mtx_scale, 2.0f, 2.0f, 2.0f);
+	mtx_world = mtx_scale * mtx_trans;
+
+	Model_Draw(m_kusa_id, mtx_world);
+
+	D3DXMatrixTranslation(&mtx_trans, 74.0f, -2.0f, 118.0f);
+	D3DXMatrixScaling(&mtx_scale, 2.0f, 2.0f, 2.0f);
+	mtx_world = mtx_scale * mtx_trans;
+
+	Model_Draw(m_kusa_id, mtx_world);
+
+	D3DXMatrixTranslation(&mtx_trans, 49.0f, -0.25f, 98.0f);
+	D3DXMatrixRotationY(&mtx_rot, D3DXToRadian(30));
+	D3DXMatrixScaling(&mtx_scale, 1.0f, 1.0f, 1.0f);
+	mtx_world = mtx_rot * mtx_scale * mtx_trans;
+
+	Model_Draw(m_kusa_id, mtx_world);
+
+
+
+
+	{
+		D3DXMatrixTranslation(&mtx_trans, 54.0f, -0.1f, 111.0f);
+		D3DXMatrixScaling(&mtx_scale, 1.0f, 2.65f, 1.0f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 53.0f, -0.1f, 108.0f);
+		D3DXMatrixScaling(&mtx_scale, 1.0f, 2.65f, 1.0f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 52.0f, -0.1f, 104.0f);
+		D3DXMatrixScaling(&mtx_scale, 1.0f, 2.65f, 1.0f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 49.0f, -0.1f, 104.0f);
+		D3DXMatrixScaling(&mtx_scale, 1.0f, 2.65f, 1.0f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 46.0f, -0.1f, 104.0f);
+		D3DXMatrixScaling(&mtx_scale, 1.0f, 2.65f, 1.0f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 43.0f, -0.1f, 104.0f);
+		D3DXMatrixScaling(&mtx_scale, 1.0f, 2.65f, 1.0f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 40.0f, -0.1f, 104.0f);
+		D3DXMatrixScaling(&mtx_scale, 1.0f, 2.65f, 1.0f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 37.0f, -0.1f, 104.0f);
+		D3DXMatrixScaling(&mtx_scale, 1.0f, 2.65f, 1.0f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 34.0f, -0.1f, 104.0f);
+		D3DXMatrixScaling(&mtx_scale, 1.0f, 2.65f, 1.0f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 31.0f, -0.1f, 104.0f);
+		D3DXMatrixScaling(&mtx_scale, 1.0f, 2.65f, 1.0f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 28.0f, -0.1f, 104.0f);
+		D3DXMatrixScaling(&mtx_scale, 1.0f, 2.65f, 1.0f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 25.0f, -0.1f, 104.0f);
+		D3DXMatrixScaling(&mtx_scale, 1.0f, 2.65f, 1.0f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 22.0f, -0.1f, 104.0f);
+		D3DXMatrixScaling(&mtx_scale, 1.0f, 2.65f, 1.0f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 19.0f, -0.1f, 104.0f);
+		D3DXMatrixScaling(&mtx_scale, 1.0f, 2.65f, 1.0f);
+		mtx_world = mtx_scale * mtx_trans;
+
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 16.0f, -0.1f, 104.0f);
+		D3DXMatrixScaling(&mtx_scale, 1.0f, 2.65f, 1.0f);
+		mtx_world = mtx_scale * mtx_trans;
+
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 15.0f, -0.1f, 104.0f);
+		D3DXMatrixScaling(&mtx_scale, 1.0f, 2.65f, 1.0f);
+		mtx_world = mtx_scale * mtx_trans;
+
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 13.0f, -0.1f, 104.0f);
+		D3DXMatrixScaling(&mtx_scale, 0.5f, 2.65f, 0.5f);
+		mtx_world = mtx_scale * mtx_trans;
+
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 10.0f, -0.1f, 104.0f);
+		D3DXMatrixScaling(&mtx_scale, 0.5f, 2.65f, 0.5f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 8.0f, -0.1f, 104.0f);
+		D3DXMatrixScaling(&mtx_scale, 0.5f, 2.65f, 0.5f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 6.0f, -0.1f, 105.0f);
+		D3DXMatrixScaling(&mtx_scale, 1.0f, 1.5f, 1.0f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+
+		D3DXMatrixTranslation(&mtx_trans, 8.0f, -0.1f, 105.0f);
+		D3DXMatrixScaling(&mtx_scale, 0.5f, 2.65f, 0.5f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 8.0f, -0.1f, 106.0f);
+		D3DXMatrixScaling(&mtx_scale, 0.5f, 2.65f, 0.5f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 7.0f, -0.1f, 104.0f);
+		D3DXMatrixScaling(&mtx_scale, 0.5f, 2.65f, 0.5f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+		D3DXMatrixTranslation(&mtx_trans, 7.0f, -0.1f, 105.0f);
+		D3DXMatrixScaling(&mtx_scale, 0.5f, 2.65f, 0.5f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 7.0f, -0.1f, 106.0f);
+		D3DXMatrixScaling(&mtx_scale, 0.5f, 2.65f, 0.5f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 5.0f, -0.1f, 106.0f);
+		D3DXMatrixScaling(&mtx_scale, 1.0f, 1.0f, 1.0f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+
+		D3DXMatrixTranslation(&mtx_trans, 7.0f, -0.1f, 107.0f);
+		D3DXMatrixScaling(&mtx_scale, 0.5f, 2.65f, 0.5f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 7.0f, -0.1f, 108.0f);
+		D3DXMatrixScaling(&mtx_scale, 0.5f, 2.65f, 0.5f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 7.0f, -0.1f, 109.0f);
+		D3DXMatrixScaling(&mtx_scale, 0.5f, 2.65f, 0.5f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 7.0f, -0.1f, 110.0f);
+		D3DXMatrixScaling(&mtx_scale, 0.5f, 2.65f, 0.5f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 6.0f, -0.1f, 111.0f);
+		D3DXMatrixScaling(&mtx_scale, 0.5f, 2.65f, 0.5f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 6.0f, -0.1f, 112.0f);
+		D3DXMatrixScaling(&mtx_scale, 0.5f, 2.65f, 0.5f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 6.0f, -0.1f, 113.0f);
+		D3DXMatrixScaling(&mtx_scale, 0.5f, 2.65f, 0.5f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 6.0f, -0.1f, 107.0f);
+		D3DXMatrixScaling(&mtx_scale, 0.5f, 2.65f, 0.5f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 6.0f, -0.1f, 108.0f);
+		D3DXMatrixScaling(&mtx_scale, 0.5f, 2.65f, 0.5f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 6.0f, -0.1f, 109.0f);
+		D3DXMatrixScaling(&mtx_scale, 0.5f, 2.65f, 0.5f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 6.0f, -0.1f, 110.0f);
+		D3DXMatrixScaling(&mtx_scale, 0.5f, 2.65f, 0.5f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+	
+		D3DXMatrixTranslation(&mtx_trans, 5.0f, -0.1f, 111.0f);
+		D3DXMatrixScaling(&mtx_scale, 0.5f, 2.3f, 0.5f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 5.0f, -0.1f, 112.0f);
+		D3DXMatrixScaling(&mtx_scale, 0.5f, 2.3f, 0.5f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 5.0f, -0.1f, 113.0f);
+		D3DXMatrixScaling(&mtx_scale, 0.5f, 2.3f, 0.5f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+	
+		D3DXMatrixTranslation(&mtx_trans, 4.0f, -0.1f, 107.0f);
+		D3DXMatrixScaling(&mtx_scale, 0.5f, 2.3f, 0.5f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 4.0f, -0.1f, 108.0f);
+		D3DXMatrixScaling(&mtx_scale, 0.5f, 2.4f, 0.5f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 4.0f, -0.1f, 109.0f);
+		D3DXMatrixScaling(&mtx_scale, 0.5f, 2.4f, 0.5f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 4.0f, -0.1f, 110.0f);
+		D3DXMatrixScaling(&mtx_scale, 0.5f, 2.4f, 0.5f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 3.0f, -0.1f, 111.0f);
+		D3DXMatrixScaling(&mtx_scale, 0.5f, 2.4f, 0.5f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 3.0f, -0.1f, 112.0f);
+		D3DXMatrixScaling(&mtx_scale, 0.5f, 2.4f, 0.5f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 3.0f, -0.1f, 113.0f);
+		D3DXMatrixScaling(&mtx_scale, 0.5f, 2.4f, 0.5f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 8.0f, -0.1f, 107.0f);
+		D3DXMatrixScaling(&mtx_scale, 0.5f, 2.3f, 0.5f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 8.0f, -0.1f, 108.0f);
+		D3DXMatrixScaling(&mtx_scale, 0.5f, 2.4f, 0.5f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 8.0f, -0.1f, 109.0f);
+		D3DXMatrixScaling(&mtx_scale, 0.5f, 2.4f, 0.5f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 8.0f, -0.1f, 110.0f);
+		D3DXMatrixScaling(&mtx_scale, 0.5f, 2.4f, 0.5f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 7.0f, -0.1f, 111.0f);
+		D3DXMatrixScaling(&mtx_scale, 0.5f, 2.4f, 0.5f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 7.0f, -0.1f, 112.0f);
+		D3DXMatrixScaling(&mtx_scale, 0.5f, 2.4f, 0.5f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 7.0f, -0.1f, 113.0f);
+		D3DXMatrixScaling(&mtx_scale, 0.5f, 2.4f, 0.5f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 9.0f, -0.1f, 107.0f);
+		D3DXMatrixScaling(&mtx_scale, 0.5f, 2.3f, 0.5f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 9.0f, -0.1f, 108.0f);
+		D3DXMatrixScaling(&mtx_scale, 0.5f, 2.4f, 0.5f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 9.0f, -0.1f, 109.0f);
+		D3DXMatrixScaling(&mtx_scale, 0.5f, 2.4f, 0.5f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 9.0f, -0.1f, 110.0f);
+		D3DXMatrixScaling(&mtx_scale, 0.5f, 2.4f, 0.5f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 10.0f, -0.1f, 111.0f);
+		D3DXMatrixScaling(&mtx_scale, 0.5f, 2.4f, 0.5f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 10.0f, -0.1f, 112.0f);
+		D3DXMatrixScaling(&mtx_scale, 0.5f, 2.4f, 0.5f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 10.0f, -0.1f, 113.0f);
+		D3DXMatrixScaling(&mtx_scale, 0.5f, 2.4f, 0.5f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 11.0f, -0.1f, 107.0f);
+		D3DXMatrixScaling(&mtx_scale, 0.5f, 2.3f, 0.5f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 11.0f, -0.1f, 108.0f);
+		D3DXMatrixScaling(&mtx_scale, 0.5f, 2.4f, 0.5f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 11.0f, -0.1f, 109.0f);
+		D3DXMatrixScaling(&mtx_scale, 0.5f, 2.4f, 0.5f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 11.0f, -0.1f, 110.0f);
+		D3DXMatrixScaling(&mtx_scale, 0.5f, 2.4f, 0.5f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 13.0f, -0.1f, 111.0f);
+		D3DXMatrixScaling(&mtx_scale, 0.5f, 2.4f, 0.5f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 13.0f, -0.1f, 112.0f);
+		D3DXMatrixScaling(&mtx_scale, 0.5f, 2.4f, 0.5f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 13.0f, -0.1f, 113.0f);
+		D3DXMatrixScaling(&mtx_scale, 0.5f, 2.4f, 0.5f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+
+	}
+
+
+	{
+		D3DXMatrixTranslation(&mtx_trans, -25.0f, -0.001f, 15.0f);
+		D3DXMatrixScaling(&mtx_scale, 2.0f, 2.0f, 2.0f);
+		mtx_world = mtx_scale * mtx_trans;
+
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, -25.0f, -0.001f, 45.0f);
+		D3DXMatrixScaling(&mtx_scale, 2.0f, 2.0f, 2.0f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, -5.0f, -1.2f, 60.0f);
+		D3DXMatrixScaling(&mtx_scale, 3.0f, 1.0f, 3.0f);
+		D3DXMatrixRotationY(&mtx_rot, D3DXToRadian(-30));
+		mtx_world = mtx_rot * mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 5.0f, -0.001f, 65.0f);
+		D3DXMatrixScaling(&mtx_scale, 3.0f, 2.0f, 2.0f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, -10.0f, -0.5f, 85.0f);
+		D3DXMatrixScaling(&mtx_scale, 1.0f, 1.0f, 1.0f);
+		D3DXMatrixRotationY(&mtx_rot, D3DXToRadian(30));
+		mtx_world = mtx_rot * mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, -25.0f, -0.001f, 85.0f);
+		D3DXMatrixScaling(&mtx_scale, 2.0f, 2.0f, 2.0f);
+		mtx_world = mtx_scale * mtx_trans;
+
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, -25.0f, -0.001f, 115.0f);
+		D3DXMatrixScaling(&mtx_scale, 2.0f, 5.0f, 2.0f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, -15.0f, -0.001f, 135.0f);
+		D3DXMatrixScaling(&mtx_scale, 1.0f, 5.0f, 2.0f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+	}
+	
+	{
+		D3DXMatrixTranslation(&mtx_trans, -7.5f, -0.001f, 98.0f);
+		D3DXMatrixScaling(&mtx_scale, 0.3f, 3.0f, 1.0f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, -7.2f, -0.001f, 103.0f);
+		D3DXMatrixScaling(&mtx_scale, 0.3f, 4.0f, 1.0f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, -6.5f, -0.001f, 112.0f);
+		D3DXMatrixScaling(&mtx_scale, 0.3f, 5.0f, 1.5f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, -6.2f, -0.001f, 124.0f);
+		D3DXMatrixScaling(&mtx_scale, 0.3f, 6.0f, 1.5f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, -6.0f, -0.001f, 127.0f);
+		D3DXMatrixScaling(&mtx_scale, 0.5f, 7.0f, 1.3f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, -5.0f, -0.001f, 130.0f);
+		D3DXMatrixScaling(&mtx_scale, 1.2f, 7.0f, 0.5f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, -2.0f, -0.001f, 131.0f);
+		D3DXMatrixScaling(&mtx_scale, 1.2f, 7.0f, 0.5f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 0.0f, -0.001f, 131.2f);
+		D3DXMatrixScaling(&mtx_scale, 1.2f, 7.0f, 0.5f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 7.3f, 14.5f, 131.2f);
+		D3DXMatrixScaling(&mtx_scale, 0.1f, 1.0f, 0.1f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 8.9f, 14.5f, 131.2f);
+		D3DXMatrixScaling(&mtx_scale, 0.1f, 1.0f, 0.1f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 12.0f, 14.5f, 130.2f);
+		D3DXMatrixScaling(&mtx_scale, 0.4f, 1.0f, 0.1f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 15.0f, 14.5f, 129.2f);
+		D3DXMatrixScaling(&mtx_scale, 0.4f, 1.0f, 0.1f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 16.0f, 14.5f, 128.2f);
+		D3DXMatrixScaling(&mtx_scale, 0.4f, 1.0f, 0.1f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 17.0f, 14.5f, 127.2f);
+		D3DXMatrixScaling(&mtx_scale, 0.4f, 1.0f, 0.1f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 18.0f, 14.5f, 126.2f);
+		D3DXMatrixScaling(&mtx_scale, 0.5f, 1.0f, 0.1f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 19.0f, 14.5f, 125.2f);
+		D3DXMatrixScaling(&mtx_scale, 0.5f, 1.0f, 0.3f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 20.0f, 14.5f, 124.2f);
+		D3DXMatrixScaling(&mtx_scale, 0.6f, 1.0f, 0.35f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 20.0f, 11.0f, 117.5f);
+		D3DXMatrixScaling(&mtx_scale, 0.6f, 1.0f, 0.42f);
+		D3DXMatrixRotationX(&mtx_rot, -D3DXToRadian(20));
+		mtx_world = mtx_rot * mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+
+	}
+
+
+
+
+	{
+		D3DXMatrixTranslation(&mtx_trans, 52.0f, -65.3f, 460.0f);
+		D3DXMatrixScaling(&mtx_scale, 2.0f, 2.0f, 2.0f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+
+		D3DXMatrixTranslation(&mtx_trans, 86.0f, -65.3f, 460.0f);
+		D3DXMatrixScaling(&mtx_scale, 2.0f, 2.0f, 2.0f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 92.0f, -65.0f, 435.0f);
+		D3DXMatrixScaling(&mtx_scale, 2.0f, 2.0f, 2.0f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 92.0f, -65.0f, 405.0f);
+		D3DXMatrixScaling(&mtx_scale, 2.0f, 2.0f, 2.0f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 92.0f, -58.3f, 386.6f);
+		D3DXMatrixScaling(&mtx_scale, 2.0f, 2.0f, 2.0f);
+		D3DXMatrixRotationX(&mtx_rot, D3DXToRadian(45));
+		mtx_world = mtx_rot * mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 92.0f, -43.3f, 371.8f);
+		D3DXMatrixScaling(&mtx_scale, 2.0f, 2.0f, 2.0f);
+		D3DXMatrixRotationX(&mtx_rot, D3DXToRadian(45));
+		mtx_world = mtx_rot * mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 92.0f, -31.8f, 360.2f);
+		D3DXMatrixScaling(&mtx_scale, 2.0f, 2.0f, 2.3f);
+		D3DXMatrixRotationX(&mtx_rot, D3DXToRadian(45));
+		mtx_world = mtx_scale * mtx_rot * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 42.5f, -58.3f, 386.6f);
+		D3DXMatrixScaling(&mtx_scale, 2.0f, 2.0f, 2.0f);
+		D3DXMatrixRotationX(&mtx_rot, D3DXToRadian(45));
+		mtx_world = mtx_rot * mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 42.5f, -43.3f, 371.8f);
+		D3DXMatrixScaling(&mtx_scale, 2.0f, 2.0f, 2.0f);
+		D3DXMatrixRotationX(&mtx_rot, D3DXToRadian(45));
+		mtx_world = mtx_rot * mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 42.5f, -31.8f, 360.2f);
+		D3DXMatrixScaling(&mtx_scale, 2.0f, 2.0f, 2.3f);
+		D3DXMatrixRotationX(&mtx_rot, D3DXToRadian(45));
+		mtx_world = mtx_scale * mtx_rot * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 42.5f, -65.3f, 435.0f);
+		D3DXMatrixScaling(&mtx_scale, 2.0f, 2.0f, 2.0f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 42.5f, -65.3f, 405.0f);
+		D3DXMatrixScaling(&mtx_scale, 2.0f, 2.0f, 2.0f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+
+	}
+
+	{
+		D3DXMatrixTranslation(&mtx_trans, 75.0f, -15.6f, 304.0f);
+		D3DXMatrixScaling(&mtx_scale, 4.0f, 0.01f, 4.0f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+	}
+
+	{
+		D3DXMatrixTranslation(&mtx_trans, 82.0f, -20.5f, 255.3f);
+		D3DXMatrixScaling(&mtx_scale, 1.0f, 1.0f, 1.01f);
+		D3DXMatrixRotationX(&mtx_rot, D3DXToRadian(-30));
+		mtx_world = mtx_scale * mtx_rot * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 52.5f, -20.5f, 255.3f);
+		D3DXMatrixScaling(&mtx_scale, 1.0f, 1.0f, 1.01f);
+		D3DXMatrixRotationX(&mtx_rot, D3DXToRadian(-30));
+		mtx_world = mtx_scale * mtx_rot * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+	}
+
+	{
+		D3DXMatrixTranslation(&mtx_trans, 92.0f, -25.3f, 239.2f);
+		D3DXMatrixScaling(&mtx_scale, 2.0f, 2.0f, 2.0f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 64.0f, -25.6f, 225.2f);
+		D3DXMatrixScaling(&mtx_scale, 4.0f, 0.05f, 2.2f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 64.0f, -25.6f, 200.2f);
+		D3DXMatrixScaling(&mtx_scale, 4.0f, 0.4f, 4.0f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+
+
+		D3DXMatrixTranslation(&mtx_trans, 65.0f, -25.3f, 203.2f);
+		D3DXMatrixScaling(&mtx_scale, 2.0f, 2.0f, 2.0f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 57.0f, -25.3f, 200.2f);
+		D3DXMatrixScaling(&mtx_scale, 2.0f, 2.0f, 2.0f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 58.0f, -25.6f, 218.2f);
+		D3DXMatrixScaling(&mtx_scale, 2.0f, 1.0f, 2.0f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 47.0f, -25.3f, 154.2f);
+		D3DXMatrixScaling(&mtx_scale, 2.0f, 1.0f, 2.0f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+
+		D3DXMatrixTranslation(&mtx_trans, 80.0f, -25.3f, 154.2f);
+		D3DXMatrixScaling(&mtx_scale, 2.0f, 1.0f, 2.0f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+
+		D3DXMatrixTranslation(&mtx_trans, 47.0f, -25.3f, 184.2f);
+		D3DXMatrixScaling(&mtx_scale, 2.0f, 1.0f, 2.0f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+	}
+
+	D3DXMATRIX mtx_rot_x;
+	{
+		D3DXMatrixTranslation(&mtx_trans, 37.0f, -20.3f, 164.2f);
+		D3DXMatrixScaling(&mtx_scale, 1.0f, 1.0f, 1.0f);
+		D3DXMatrixRotationX(&mtx_rot_x, D3DXToRadian(30));
+		D3DXMatrixRotationY(&mtx_rot, D3DXToRadian(90));
+		mtx_world = mtx_rot_x * mtx_rot * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 37.0f, -20.3f, 144.2f);
+		D3DXMatrixScaling(&mtx_scale, 0.5f, 8.0f, 1.6f);
+		D3DXMatrixRotationX(&mtx_rot_x, D3DXToRadian(30));
+		D3DXMatrixRotationY(&mtx_rot, D3DXToRadian(90));
+		mtx_world = mtx_scale * mtx_rot_x * mtx_rot * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+		
+		D3DXMatrixTranslation(&mtx_trans, 32.0f, -16.3f, 162.2f);
+		D3DXMatrixScaling(&mtx_scale, 0.5f, 2.0f, 0.8f);
+		D3DXMatrixRotationX(&mtx_rot_x, D3DXToRadian(30));
+		D3DXMatrixRotationY(&mtx_rot, D3DXToRadian(90));
+		mtx_world = mtx_scale * mtx_rot_x * mtx_rot * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+		
+		D3DXMatrixTranslation(&mtx_trans, 20.5f, -12.5f, 162.2f);
+		D3DXMatrixScaling(&mtx_scale, 0.5f, 1.0f, 0.5f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 16.5f, -12.5f, 160.2f);
+		D3DXMatrixScaling(&mtx_scale, 0.5f, 1.0f, 0.5f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 14.5f, -12.5f, 158.2f);
+		D3DXMatrixScaling(&mtx_scale, 0.5f, 1.0f, 0.5f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+
+
+
+		D3DXMatrixTranslation(&mtx_trans, 23.0f, -20.3f, 140.2f);
+		D3DXMatrixScaling(&mtx_scale, 1.0f, 3.0f, 1.0f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 23.0f, -20.3f, 130.2f);
+		D3DXMatrixScaling(&mtx_scale, 1.0f, 5.0f, 1.0f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+
+
+		D3DXMatrixTranslation(&mtx_trans, 21.0f, -15.3f, 168.2f);
+		D3DXMatrixScaling(&mtx_scale, 1.0f, 3.0f, 1.0f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 15.0f, -15.3f, 168.2f);
+		D3DXMatrixScaling(&mtx_scale, 1.0f, 3.0f, 1.0f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 12.0f, -15.3f, 160.2f);
+		D3DXMatrixScaling(&mtx_scale, 1.0f, 3.0f, 1.0f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 10.0f, -15.3f, 139.2f);
+		D3DXMatrixScaling(&mtx_scale, 1.0f, 4.0f, 1.0f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 8.0f, -15.3f, 148.2f);
+		D3DXMatrixScaling(&mtx_scale, 1.0f, 4.0f, 1.0f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 8.0f, -15.3f, 130.2f);
+		D3DXMatrixScaling(&mtx_scale, 1.0f, 9.0f, 1.0f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 8.0f, -15.3f, 120.2f);
+		D3DXMatrixScaling(&mtx_scale, 1.0f, 9.0f, 1.0f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+		
+		D3DXMatrixTranslation(&mtx_trans, 8.0f, -15.3f, 110.2f);
+		D3DXMatrixScaling(&mtx_scale, 1.0f, 6.0f, 1.0f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+		
+		D3DXMatrixTranslation(&mtx_trans, 32.0f, -15.3f, 143.2f);
+		D3DXMatrixScaling(&mtx_scale, 1.0f, 9.0f, 0.5f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 40.0f, -15.3f, 143.2f);
+		D3DXMatrixScaling(&mtx_scale, 1.0f, 9.0f, 0.5f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 45.0f, -15.3f, 143.2f);
+		D3DXMatrixScaling(&mtx_scale, 1.0f, 9.0f, 0.5f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 48.0f, -15.3f, 143.2f);
+		D3DXMatrixScaling(&mtx_scale, 1.0f, 9.0f, 0.5f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 52.0f, -15.3f, 143.2f);
+		D3DXMatrixScaling(&mtx_scale, 1.0f, 9.0f, 0.5f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 55.0f, -15.3f, 140.2f);
+		D3DXMatrixScaling(&mtx_scale, 1.0f, 9.0f, 0.5f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 20.0f, -15.3f, 118.2f);
+		D3DXMatrixScaling(&mtx_scale, 1.0f, 6.0f, 1.0f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 24.0f, -15.3f, 113.2f);
+		D3DXMatrixScaling(&mtx_scale, 1.0f, 6.0f, 1.0f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 29.0f, -15.3f, 110.2f);
+		D3DXMatrixScaling(&mtx_scale, 1.0f, 6.0f, 1.5f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 32.0f, -15.3f, 114.2f);
+		D3DXMatrixScaling(&mtx_scale, 1.0f, 6.0f, 1.5f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 36.0f, -15.3f, 118.2f);
+		D3DXMatrixScaling(&mtx_scale, 1.0f, 9.0f, 1.5f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+
+		D3DXMatrixTranslation(&mtx_trans, 20.0f, -15.3f, 115.2f);
+		D3DXMatrixScaling(&mtx_scale, 4.0f, 9.0f, 0.5f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+
+		D3DXMatrixTranslation(&mtx_trans, 38.0f, -15.3f, 119.2f);
+		D3DXMatrixScaling(&mtx_scale, 1.0f, 9.0f, 2.3f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 43.0f, -15.3f, 119.2f);
+		D3DXMatrixScaling(&mtx_scale, 0.5f, 9.0f, 2.3f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, -5.2f, -15.3f, 125.2f);
+		D3DXMatrixScaling(&mtx_scale, 2.0f, 1.0f, 2.0f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+	}
+
+
+	{
+		D3DXMatrixTranslation(&mtx_trans, 29.0f, -20.4f, 141.2f);
+		D3DXMatrixScaling(&mtx_scale, 0.4f, 10.0f, 0.4f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 27.0f, -20.4f, 140.2f);
+		D3DXMatrixScaling(&mtx_scale, 0.4f, 10.0f, 0.4f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 26.0f, -20.4f, 137.2f);
+		D3DXMatrixScaling(&mtx_scale, 0.4f, 10.0f, 0.4f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 25.0f, -20.4f, 135.2f);
+		D3DXMatrixScaling(&mtx_scale, 0.1f, 10.0f, 0.6f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+	}
+
+	{
+		D3DXMatrixTranslation(&mtx_trans, -0.5f, -0.001f, 114.5f);
+		D3DXMatrixScaling(&mtx_scale, 5.8f, 7.5f, 6.5f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_nanakusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 30.0f, 7.15f, 114.2f);
+		D3DXMatrixScaling(&mtx_scale, 1.6f, 2.0f, 0.1f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 50.0f, -2.1f, 118.2f);
+		D3DXMatrixScaling(&mtx_scale, 5.8f, 5.0f, 4.3f);
+		D3DXMatrixRotationY(&mtx_rot, D3DXToRadian(180));
+		mtx_world = mtx_rot * mtx_scale * mtx_trans;
+		Model_Draw(m_nanakusa_id, mtx_world);
+	}
+
+	{
+		D3DXMatrixTranslation(&mtx_trans, 30.0f, 7.15f, 114.2f);
+		D3DXMatrixScaling(&mtx_scale, 1.6f, 2.0f, 0.1f);
+		mtx_world = mtx_scale * mtx_trans;
+		//Model_Draw(m_kusa_id, mtx_world);
+	}
+
+
+	//	看板
+	{
+		D3DXMatrixTranslation(&mtx_trans, 10.0f, -0.5f, 45.2f);
+		D3DXMatrixScaling(&mtx_scale, 1.8f, 1.8f, 1.8f);
+		D3DXMatrixRotationY(&mtx_rot, D3DXToRadian(90));
+		mtx_world = mtx_scale * mtx_rot * mtx_trans;
+		Model_Draw(m_komachi_id, mtx_world);
+	}
+
+	{
+		D3DXMatrixTranslation(&mtx_trans, 19.0f, -12.1f, 135.0f);
+		D3DXMatrixScaling(&mtx_scale, 5.8f, 5.0f, 4.3f);
+		D3DXMatrixRotationY(&mtx_rot, D3DXToRadian(180));
+		mtx_world = mtx_rot * mtx_scale * mtx_trans;
+		Model_Draw(m_nanakusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 12.0f, -12.1f, 109.0f);
+		D3DXMatrixScaling(&mtx_scale, 1.2f, 5.0f, 1.2f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_marukusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 13.0f, -2.2f, 127.9f);
+		D3DXMatrixScaling(&mtx_scale, 0.3f, 0.5f, 0.3f);
+		D3DXMatrixRotationY(&mtx_rot, D3DXToRadian(180));
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 15.0f, -2.2f, 124.5f);
+		D3DXMatrixScaling(&mtx_scale, 0.3f, 0.5f, 0.3f);
+		D3DXMatrixRotationY(&mtx_rot, D3DXToRadian(180));
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 16.0f, -2.2f, 121.5f);
+		D3DXMatrixScaling(&mtx_scale, 0.3f, 0.5f, 0.3f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 14.0f, -2.2f, 119.5f);
+		D3DXMatrixScaling(&mtx_scale, 0.3f, 0.5f, 0.3f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 17.0f, -2.2f, 117.5f);
+		D3DXMatrixScaling(&mtx_scale, 0.3f, 0.5f, 0.3f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+
+
+		D3DXMatrixTranslation(&mtx_trans, 25.0f, -2.2f, 117.5f);
+		D3DXMatrixScaling(&mtx_scale, 0.3f, 0.5f, 0.3f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 27.0f, -2.2f, 118.5f);
+		D3DXMatrixScaling(&mtx_scale, 0.3f, 0.5f, 0.3f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 29.0f, -2.2f, 118.5f);
+		D3DXMatrixScaling(&mtx_scale, 0.3f, 0.5f, 0.3f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+		D3DXMatrixTranslation(&mtx_trans, 31.0f, -2.2f, 119.5f);
+		D3DXMatrixScaling(&mtx_scale, 0.3f, 0.5f, 0.3f);
+		mtx_world = mtx_scale * mtx_trans;
+		Model_Draw(m_kusa_id, mtx_world);
+
+	}
+
 }

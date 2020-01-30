@@ -57,18 +57,22 @@ Rocks::~Rocks()
 
 Rocks* Rocks::AddRock(Rock *setRock)
 {
+	Rocks *forcus = this;
+	while (true)
+	{
 
-	if (next==nullptr)
-	{
-		next = new Rocks(setRock);
-		next->next = nullptr;
-		return next;
-	}
-	else
-	{
-		return next->AddRock(setRock);
-	}
-}
+		if (forcus->next == nullptr)
+		{
+			forcus->next = new Rocks(setRock);
+			forcus->next->next = nullptr;
+			return forcus->next;
+		}
+		else
+		{
+			forcus=forcus->next;
+		}
+
+	}}
 void Rocks::Update(void)
 {
 	if (next == nullptr)
@@ -103,71 +107,73 @@ void Rocks::Delete(void)
 
 static int g_texId;
 static Rocks *g_rocks;
-static Spheres *g_coli;
+static Spheres *g_coli3;
 static int g_model_id;
 void RockInit()
 {
 	Rocks *a;
 	//1
-	g_rocks = new Rocks(new Rock(0.0f, 0.0f, 1.0f, D3DXVECTOR3(-4.0f, 0.0f, 15.0f)));
-	g_coli = new Spheres(new Sphere(0.5f, D3DXVECTOR3(0.0f, 0.0f, 0.0f), &g_rocks->me->mtx));
-	//2
-	a = g_rocks->AddRock(new Rock(0.0f, 0.0f, 1.0f, D3DXVECTOR3(25.0f, 0.0f, 37.0f)));
-	g_coli->AddSphare(new Sphere(0.5f, D3DXVECTOR3(0.0f, 0.0f, 0.0f), &a->me->mtx));
+	g_rocks = new Rocks(new Rock(0.0f, 0.5f, 1.0f, D3DXVECTOR3(-4.0f, 0.5f, 15.0f)));
+	g_coli3 = new Spheres(new Sphere(0.5f, D3DXVECTOR3(0.0f, 0.0f, 0.0f), &g_rocks->me->mtx));
+	//
+	a = g_rocks->AddRock(new Rock(0.0f, 0.0f, 1.0f, D3DXVECTOR3(25.0f, 0.5f, 37.0f)));
+	g_coli3->AddSphare(new Sphere(0.5f, D3DXVECTOR3(0.0f, 0.0f, 0.0f), &a->me->mtx));
 	//3
-	a = g_rocks->AddRock(new Rock(0.0f, 0.0f, 1.0f, D3DXVECTOR3(25.0f, 0.0f, 37.0f)));
-	g_coli->AddSphare(new Sphere(0.5f, D3DXVECTOR3(0.0f, 0.0f, 0.0f), &a->me->mtx));
+	a = g_rocks->AddRock(new Rock(0.0f, 0.0f, 1.0f, D3DXVECTOR3(25.0f, 0.5f, 37.0f)));
+	g_coli3->AddSphare(new Sphere(0.5f, D3DXVECTOR3(0.0f, 0.0f, 0.0f), &a->me->mtx));
 	//4
-	a = g_rocks->AddRock(new Rock(0.0f, 0.0f, 1.0f, D3DXVECTOR3(44.0f, 0.0f, 60.0f)));
-	g_coli->AddSphare(new Sphere(0.5f, D3DXVECTOR3(0.0f, 0.0f, 0.0f), &a->me->mtx));
+	a = g_rocks->AddRock(new Rock(0.0f, 0.0f, 1.0f, D3DXVECTOR3(44.0f, 0.5f, 60.0f)));
+	g_coli3->AddSphare(new Sphere(0.5f, D3DXVECTOR3(0.0f, 0.0f, 0.0f), &a->me->mtx));
 	//5
-	a = g_rocks->AddRock(new Rock(0.0f, 0.0f, 1.0f, D3DXVECTOR3(40.0f, 0.0f, 70.0f)));
-	g_coli->AddSphare(new Sphere(0.5f, D3DXVECTOR3(0.0f, 0.0f, 0.0f), &a->me->mtx));
+	a = g_rocks->AddRock(new Rock(0.0f, 0.0f, 1.0f, D3DXVECTOR3(40.0f, 0.5f, 70.0f)));
+	g_coli3->AddSphare(new Sphere(0.5f, D3DXVECTOR3(0.0f, 0.0f, 0.0f), &a->me->mtx));
 	//6
-	a = g_rocks->AddRock(new Rock(0.0f, 0.0f, 1.0f, D3DXVECTOR3(38.0f, 0.0f, 94.0f)));
-	g_coli->AddSphare(new Sphere(0.5f, D3DXVECTOR3(0.0f, 0.0f, 0.0f), &a->me->mtx));
+	a = g_rocks->AddRock(new Rock(0.0f, 0.0f, 1.0f, D3DXVECTOR3(38.0f, 0.5f, 94.0f)));
+	g_coli3->AddSphare(new Sphere(0.5f, D3DXVECTOR3(0.0f, 0.0f, 0.0f), &a->me->mtx));
 	//7
-	a = g_rocks->AddRock(new Rock(0.0f, 0.0f, 1.0f, D3DXVECTOR3(30.0f, 0.0f, 90.0f)));
-	g_coli->AddSphare(new Sphere(0.5f, D3DXVECTOR3(0.0f, 0.0f, 0.0f), &a->me->mtx));
+	a = g_rocks->AddRock(new Rock(0.0f, 0.0f, 1.0f, D3DXVECTOR3(30.0f, 0.5f, 90.0f)));
+	g_coli3->AddSphare(new Sphere(0.5f, D3DXVECTOR3(0.0f, 0.0f, 0.0f), &a->me->mtx));
 	//8
-	a = g_rocks->AddRock(new Rock(0.0f, 0.0f, 1.0f, D3DXVECTOR3(20.0f, 0.0f, 86.0f)));
-	g_coli->AddSphare(new Sphere(0.5f, D3DXVECTOR3(0.0f, 0.0f, 0.0f), &a->me->mtx));
+	a = g_rocks->AddRock(new Rock(0.0f, 0.0f, 1.0f, D3DXVECTOR3(20.0f, 0.5f, 86.0f)));
+	g_coli3->AddSphare(new Sphere(0.5f, D3DXVECTOR3(0.0f, 0.0f, 0.0f), &a->me->mtx));
 	//9
-	a = g_rocks->AddRock(new Rock(0.0f, 0.0f, 1.0f, D3DXVECTOR3(15.0f, 0.0f, 88.5f)));
-	g_coli->AddSphare(new Sphere(0.5f, D3DXVECTOR3(0.0f, 0.0f, 0.0f), &a->me->mtx));
+	a = g_rocks->AddRock(new Rock(0.0f, 0.0f, 1.0f, D3DXVECTOR3(15.0f, 0.5f, 88.5f)));
+	g_coli3->AddSphare(new Sphere(0.5f, D3DXVECTOR3(0.0f, 0.0f, 0.0f), &a->me->mtx));
 	//10
 	a = g_rocks->AddRock(new Rock(0.0f, 0.0f, 1.0f, D3DXVECTOR3(3.5f, 6.5f, 105.0f)));
-	g_coli->AddSphare(new Sphere(0.5f, D3DXVECTOR3(0.0f, 0.0f, 0.0f), &a->me->mtx));
+	g_coli3->AddSphare(new Sphere(0.5f, D3DXVECTOR3(0.0f, 0.0f, 0.0f), &a->me->mtx));
 	//11
 	a = g_rocks->AddRock(new Rock(0.0f, 0.0f, 1.0f, D3DXVECTOR3(-3.5f, 8.7f, 110.0f)));
-	g_coli->AddSphare(new Sphere(0.5f, D3DXVECTOR3(0.0f, 0.0f, 0.0f), &a->me->mtx));
+	g_coli3->AddSphare(new Sphere(0.5f, D3DXVECTOR3(0.0f, 0.0f, 0.0f), &a->me->mtx));
 	//12
 	a = g_rocks->AddRock(new Rock(0.0f, 0.0f, 1.0f, D3DXVECTOR3(3.5f, 13.2f, 117.5f)));
-	g_coli->AddSphare(new Sphere(0.5f, D3DXVECTOR3(0.0f, 0.0f, 0.0f), &a->me->mtx));
+	g_coli3->AddSphare(new Sphere(0.5f, D3DXVECTOR3(0.0f, 0.0f, 0.0f), &a->me->mtx));
 
-	a = g_rocks->AddRock(new Rock(0.0f, 0.0f, 1.0f, D3DXVECTOR3(10.0f, 12.5f, 115.0f)));
-	g_coli->AddSphare(new Sphere(0.5f, D3DXVECTOR3(0.0f, 0.0f, 0.0f), &a->me->mtx));
+	a = g_rocks->AddRock(new Rock(0.0f, 0.0f, 1.0f, D3DXVECTOR3(10.0f, 8.5f, 115.0f)));
+	g_coli3->AddSphare(new Sphere(0.5f, D3DXVECTOR3(0.0f, 0.0f, 0.0f), &a->me->mtx));
 
-	a = g_rocks->AddRock(new Rock(0.0f, 0.0f, 1.0f, D3DXVECTOR3(30.0f, 8.0f, 109.0f)));
-	g_coli->AddSphare(new Sphere(0.5f, D3DXVECTOR3(0.0f, 0.0f, 0.0f), &a->me->mtx));
+	a = g_rocks->AddRock(new Rock(0.0f, 0.0f, 1.0f, D3DXVECTOR3(30.0f, 8.5f, 109.0f)));
+	g_coli3->AddSphare(new Sphere(0.5f, D3DXVECTOR3(0.0f, 0.0f, 0.0f), &a->me->mtx));
 
-	a = g_rocks->AddRock(new Rock(0.0f, 0.0f, 1.0f, D3DXVECTOR3(44.0f, 8.0f, 113.0f)));
-	g_coli->AddSphare(new Sphere(0.5f, D3DXVECTOR3(0.0f, 0.0f, 0.0f), &a->me->mtx));
+	a = g_rocks->AddRock(new Rock(0.0f, 0.0f, 1.0f, D3DXVECTOR3(44.0f, 8.5f, 113.0f)));
+	g_coli3->AddSphare(new Sphere(0.5f, D3DXVECTOR3(0.0f, 0.0f, 0.0f), &a->me->mtx));
 
-	a = g_rocks->AddRock(new Rock(0.0f, 0.0f, 1.0f, D3DXVECTOR3(47.0f, 6.0f, 117.5f)));
-	g_coli->AddSphare(new Sphere(0.5f, D3DXVECTOR3(0.0f, 0.0f, 0.0f), &a->me->mtx));
+	a = g_rocks->AddRock(new Rock(0.0f, 0.0f, 1.0f, D3DXVECTOR3(47.0f, 3.0f, 117.5f)));
+	g_coli3->AddSphare(new Sphere(0.5f, D3DXVECTOR3(0.0f, 0.0f, 0.0f), &a->me->mtx));
 
 	a = g_rocks->AddRock(new Rock(0.0f, 0.0f, 1.0f, D3DXVECTOR3(53.0f, 1.25f, 125.5f)));
-	g_coli->AddSphare(new Sphere(0.5f, D3DXVECTOR3(0.0f, 0.0f, 0.0f), &a->me->mtx));
+	g_coli3->AddSphare(new Sphere(0.5f, D3DXVECTOR3(0.0f, 0.0f, 0.0f), &a->me->mtx));
 
 	a = g_rocks->AddRock(new Rock(0.0f, 0.0f, 1.0f, D3DXVECTOR3(23.0f, -4.25f, 135.5f)));
-	g_coli->AddSphare(new Sphere(0.5f, D3DXVECTOR3(0.0f, 0.0f, 0.0f), &a->me->mtx));
+	g_coli3->AddSphare(new Sphere(0.5f, D3DXVECTOR3(0.0f, 0.0f, 0.0f), &a->me->mtx));
 
 	a = g_rocks->AddRock(new Rock(0.0f, 0.0f, 1.0f, D3DXVECTOR3(27.5f, -13.5f, 155.0f)));
-	g_coli->AddSphare(new Sphere(0.5f, D3DXVECTOR3(0.0f, 0.0f, 0.0f), &a->me->mtx));
+	g_coli3->AddSphare(new Sphere(0.5f, D3DXVECTOR3(0.0f, 0.0f, 0.0f), &a->me->mtx));
 
 	a = g_rocks->AddRock(new Rock(0.0f, 0.0f, 1.0f, D3DXVECTOR3(47.5f, -22.0f, 160.0f)));
-	g_coli->AddSphare(new Sphere(0.5f, D3DXVECTOR3(0.0f, 0.0f, 0.0f), &a->me->mtx));
+	g_coli3->AddSphare(new Sphere(0.5f, D3DXVECTOR3(0.0f, 0.0f, 0.0f), &a->me->mtx));
+
+
 	//g_texId = Texture_SetLoadFile("Asset\\Texture\\tree000.png", 1024, 1024);
 	g_model_id = Model_Load("rock.x");
 }
@@ -176,7 +182,7 @@ void RockUpdate()
 
 	g_rocks->Update();
 
-	g_coli->Update();
+	g_coli3->Update();
 
 }
 void RockUninit()
@@ -188,7 +194,9 @@ void RockUninit()
 	else
 	{
 		g_rocks->Delete();
+		g_rocks = nullptr;
 	}
+	Model_Destroy(&g_model_id, 1);
 }
 
 void RockDraw()
@@ -212,7 +220,14 @@ void RockDraw()
 			}
 			else
 			{
-				focus = focus->next;
+				if (focus->me==nullptr)
+				{
+					end = true;
+				}
+				else
+				{
+					focus = focus->next;
+				}
 			}
 		}
 	}
@@ -223,5 +238,5 @@ Rocks *RocksGet(void)
 }
 Spheres *RocksGetColi(void)
 {
-	return g_coli;
+	return g_coli3;
 }

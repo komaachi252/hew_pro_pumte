@@ -24,7 +24,7 @@
 //	クラス宣言
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
 struct Model{
-	char fliename[MODEL_FILE_LEN];
+	char filename[MODEL_FILE_LEN];
 	LPD3DXMESH pMesh; //  メッシュ情報 複数なら複数必要
 	DWORD MaterialCount; //  マテリアルの数
 	LPD3DXBUFFER pMaterials;  //  マテリアルの情報格納用
@@ -49,7 +49,7 @@ void Model_Init(void)
 	g_pModel = new Model[MODEL_MAX];
 
 	for (int i = 0; i < MODEL_MAX; i++) {
-		g_pModel[i].fliename[0] = '\0';  //  文字列を初期化
+		g_pModel[i].filename[0] = '\0';  //  文字列を初期化
 		g_pModel[i].pMesh = nullptr;
 		g_pModel[i].MaterialCount = 0;
 		g_pModel[i].pMaterials = nullptr;
@@ -64,24 +64,24 @@ int Model_Load(const char* pFilename)
 {
 	//同じファイル名を探す
 	for (int i = 0; i < MODEL_MAX; i++) {
-		if (strcmp(g_pModel[i].fliename, pFilename) == 0) {//同じファイルを見つけた
+		if (strcmp(g_pModel[i].filename, pFilename) == 0) {//同じファイルを見つけた
 			return i;//予約番号を返す
 		}
 	}
 	//新規登録
 	for (int i = 0; i < MODEL_MAX; i++) {
 		//使用されていない場所を探す
-		if (g_pModel[i].fliename[0] != 0) {//配列最初が\0
+		if (g_pModel[i].filename[0] != 0) {//配列最初が\0
 			continue;//前のfor文に戻る
 		}
 		//モデル読み込み
-		strcpy(g_pModel[i].fliename, pFilename);
+		strcpy(g_pModel[i].filename, pFilename);
 
 		char buf[MODEL_FILE_LEN];  //  ファイルパス連結用変数
 
 		strcpy(buf, MODEL_FILE_PATH);
 
-		strcat(buf, g_pModel[i].fliename);
+		strcat(buf, g_pModel[i].filename);
 
 		LPDIRECT3DDEVICE9 pDevice = GetDevice();  //  デバイスの取得
 
@@ -129,10 +129,10 @@ int Model_Load(const char* pFilename)
 void Model_Destroy(int ids[], int count)
 {
 	for (int i = 0; i < count; i++) {
-		if (g_pModel[ids[i]].fliename[0] == '\0') {
+		if (g_pModel[ids[i]].filename[0] == '\0') {
 			continue;
 		}
-		g_pModel[ids[i]].fliename[0] = '\0';
+		g_pModel[ids[i]].filename[0] = '\0';
 		g_pModel[ids[i]].pMesh = nullptr;
 		g_pModel[ids[i]].MaterialCount = 0;
 		g_pModel[ids[i]].pMaterials = nullptr;
@@ -146,10 +146,10 @@ void Model_Destroy(int ids[], int count)
 void Model_Destroy(void)
 {
 	for (int i = 0; i < MODEL_MAX; i++) {
-		if (g_pModel[i].fliename[0] == '\0') {
+		if (g_pModel[i].filename[0] == '\0') {
 			continue;
 		}
-		g_pModel[i].fliename[0] = '\0';
+		g_pModel[i].filename[0] = '\0';
 		g_pModel[i].pMesh = nullptr;
 		g_pModel[i].MaterialCount = 0;
 		g_pModel[i].pMaterials = nullptr;
@@ -202,6 +202,10 @@ void Model_Draw(int idx)
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
 void Model_Draw(int idx, const D3DXMATRIX& mtx)
 {
+	if (idx <= -1) {
+		return;
+	}
+
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
 
 	pDevice->SetTransform(D3DTS_WORLD, &mtx);
@@ -224,6 +228,17 @@ void Model_Draw(int idx, const D3DXMATRIX& mtx)
 			pDevice->SetMaterial(&mat);
 		}
 		else {
+			D3DMATERIAL9 mat = {};
+			mat.Diffuse.r = 1.0f;
+			mat.Diffuse.b = 1.0f;
+			mat.Diffuse.g = 1.0f;
+			mat.Diffuse.a = 1.0f;
+			mat.Ambient.r = 1.0f;
+			mat.Ambient.g = 1.0f;
+			mat.Ambient.b = 1.0f;
+			mat.Ambient.a = 1.0f;
+
+			pDevice->SetMaterial(&mat);
 			//  マテリアルカラーを白にしてテクスチャを貼る
 			pDevice->SetTexture(0, Texture_GetTexture(g_pModel[idx].TextureIds[i]));
 		}

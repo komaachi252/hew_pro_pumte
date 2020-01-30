@@ -10,12 +10,20 @@
 #include<math.h>
 #include"input.h"
 #include"line.h"
+enum PLAY_MODE {
+	MODE_2,
+	MODE_4,
+	MODE_MAX,
+};
+
 class Player
 {
 public:
+	
+	PLAY_MODE m_mode;
 	//座標
 	D3DXVECTOR3 pos;
-
+	D3DXVECTOR3 pastPos;
 	//速度
 	float speed = 0.0f;
 	float speedMax = 0.0f;
@@ -37,6 +45,7 @@ public:
 
 	Spheres* coliSpheres;
 	ForcusSpheresIsSpheres* IsRock;
+	ForcusSpheresIsSpheres* IsMapArea;
 
 
 	//姿勢制御
@@ -50,6 +59,10 @@ public:
 	float fov = 0.0f;
 	int modelId;
 	D3DXMATRIX mtxWorld;
+	bool *m_is_used; // ユーザー入力用
+	int *m_is_frame; //	漕ぐフレーム
+	int m_effect;
+	int m_effect_frame;
 
 	~Player();
 	void Init(void);
@@ -57,6 +70,8 @@ public:
 	void Uninit(void);
 	void Update(void);
 	void AngleUpdate();
+	void Set_Mode(PLAY_MODE mode);
+	void Row(int index);
 };
 
 void PlayerInit(void);
@@ -65,5 +80,8 @@ void PlayerUninit(void);
 void PlayerUpdate(void);
 Player* PlayerGet();
 
+D3DXVECTOR3* Get_Player_Front(void);
+D3DXVECTOR3* Get_Player_Pos(void);
+void Set_Player_Mode(PLAY_MODE mode);
 
 #endif // !PLAYER_H_

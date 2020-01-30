@@ -14,6 +14,7 @@
 #include "camera.h"
 #include "direct3d.h"
 #include "input.h"
+#include "sound.h"
 
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
 //	定数定義
@@ -31,6 +32,7 @@ private:
 	bool is_press;  //  取り合えずボタン押されたか
 	bool is_used;  //  使用中ならtrue
 	bool is_go; //  ＧＯ！のテクスチャを表示後にtrue
+	int start_frame;
 	D3DXVECTOR2 pos;  //  表示座標
 	static const int TEX_WIDTH = 580;
 	static const int TEX_HEIGHT = 580;
@@ -100,13 +102,14 @@ void Start_Count_Draw(void)
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
 bool Is_Start_Count_End(void)
 {
+	if (gp_start_count == nullptr) return false;
 	return gp_start_count->Is_Go();
 }
 
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
 //	Start_Countクラス コンストラクタ
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-Start_Count::Start_Count(void):num(0),frame_count(0),pos(POS_X, POS_Y),is_press(false),is_used(true),is_go(false)
+Start_Count::Start_Count(void):num(0),frame_count(0),pos(POS_X, POS_Y),is_press(false),is_used(true),is_go(false),start_frame(60)
 {
 	tex = Texture_SetLoadFile("Asset/Texture/new_start.png", TEX_WIDTH, TEX_HEIGHT);
 	
@@ -118,7 +121,7 @@ Start_Count::Start_Count(void):num(0),frame_count(0),pos(POS_X, POS_Y),is_press(
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
 Start_Count::~Start_Count(void)
 {
-
+	Texture_Destroy(&tex, 1);
 }
 
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
@@ -127,12 +130,26 @@ Start_Count::~Start_Count(void)
 void Start_Count::Update(void)
 {
 	if (!is_used) { return; }
-
+	start_frame--;
+	if (start_frame <= 0) {
+		is_press = true;
+	}
+	/*
 	if (Keyboard_IsTrigger(DIK_SPACE)) {
 		is_press = true;  
 	}
+	*/
+	if (frame_count == 1 && num == 0) {
+		PlaySound(SOUND_LABEL_SE_COUNT);
+	}
 
 	if (frame_count >= WAIT_FRAME && num < NUM_MAX) {
+		if (num != 2) {
+			PlaySound(SOUND_LABEL_SE_COUNT);
+		}
+		else {
+			PlaySound(SOUND_LABEL_SE_WHISTLE);
+		}
 		num++;
 		frame_count = 0;
 		if (num == NUM_MAX) { is_go = true; }

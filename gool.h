@@ -3,7 +3,7 @@
 #include<d3dx9.h>
 #include<d3d9.h>
 #include"Judgement.h"
-
+/*
 struct Gool
 {
 	D3DXVECTOR3 pos;
@@ -24,6 +24,6 @@ Gool* GoolGetGool(void);
 void GoolSetColi(bool set);
 bool GoolGetIsColi(void);
 bool GoolGetCrear(void);
-
+*/
 #endif // !GOOL_H_
 

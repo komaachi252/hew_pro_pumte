@@ -36,6 +36,7 @@ static D3DLIGHT9 g_Light = {};  //  ƒ‰ƒCƒg\‘¢‘Ì
 //™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™
 void Light_Init(void)
 {
+	
 	g_Light.Type = D3DLIGHT_DIRECTIONAL;
 	D3DXVECTOR3 vecDirLight(0.0f, -1.0f, 0.0f);
 
@@ -56,10 +57,12 @@ void Light_Init(void)
 
 	pDevice->SetRenderState(D3DRS_NORMALIZENORMALS, TRUE);  //  Šg‘åk¬‚Å‚à³í‚ÈŒõ‚É‚È‚é
 
-	pDevice->SetRenderState(D3DRS_AMBIENT, D3DCOLOR_XRGB(32, 0, 100));
+	pDevice->SetRenderState(D3DRS_AMBIENT, D3DCOLOR_XRGB(100, 100, 100));
 
 	pDevice->SetRenderState(D3DRS_AMBIENTMATERIALSOURCE, D3DMCS_COLOR1);
-
+	pDevice->SetRenderState(D3DRS_AMBIENTMATERIALSOURCE, D3DMCS_COLOR2);
+	pDevice->SetRenderState(D3DRS_AMBIENTMATERIALSOURCE, D3DMCS_MATERIAL);
+	
 }
 
 //™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™

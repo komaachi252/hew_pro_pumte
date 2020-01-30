@@ -27,6 +27,14 @@
 #include "rock.h"
 //#include "player.h"
 //#include "line.h"
+#include "sky_dome.h"
+#include "MapArea.h"
+#include "collision_draw.h"
+#include "sinko.h"
+#include "uturn.h"
+#include "input.h"
+#include "flag.h"
+#include "sound.h"
 
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
 //	定数定義
@@ -46,23 +54,28 @@ void Game_Initialize(void)
 	// --------------------------------
 	//  ここにゲームの初期化関数を記述
 	// --------------------------------
-	// Enemy_Initialize();
-	// Player_Initialize();
+
+	Map_Init();
 	RockInit();
+	MapAreaInit();
 	PlayerInit();
+	FlagInit();
 	CameraInit();
 	JudgementInit();
 	Game_Manager_Init();
 	Light_Init();
 	Set_Light();
 	Grid_Init();
-	Map_Init();
 	Start_Count_Init();
-	//BrocksInit();
-	//FlagsInit();
 	//GoolInit();
 	UI_Init();
 	//LineInit();
+	Sky_Dome_Init();
+	Sinko_Init();
+	Colli_Draw_Init(GetDevice());
+	Uturn_Init();
+	StopSound(SOUND_LABEL_BGM_TUTORIAL);
+	PlaySound(SOUND_LABEL_BGM_GAME);
 	Fade_Start(60, D3DCOLOR_RGBA(0, 0, 0, 0), false);
 	//	初期化でフェードイン
 }
@@ -75,19 +88,24 @@ void Game_Update(void)
 	// --------------------------------
 	//  ここにゲームの更新関数を記述
 	// --------------------------------
+	JudgementUpdate();
+	Map_Update();
 	PlayerUpdate();
 	CameraUpdate();
+	MapAreaUpdate();
 	Game_Manager_Update();
-	JudgementUpdate();
 	Grid_Update();
 	Start_Count_Update();
-	JudgementUpdate();
 	UI_Update();
 	RockUpdate();
-	//BrocksUpdate();
-	//FlagsUpdate();
+	FlagUpdate();
+	Sky_Dome_Update();
+	Sinko_Update();
+	Uturn_Update();
+	if (Keyboard_IsTrigger(DIK_Q)) {
+		Uturn_Create();
+	}
 	//GoolUpdate();
-	//LineUpdate();
 }
 
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
@@ -100,16 +118,18 @@ void Game_Draw(void)
 	// --------------------------------
 	D3DXMATRIX mtxW;
 	D3DXMatrixIdentity(&mtxW);
-	//Grid_Draw();
+	Sky_Dome_Draw();
 	Map_Draw();
 	PlayerDraw();
-	//BrocksDraw();
-	//FlagsDraw();
+	MapAreaDraw();
+
 	//GoolDraw();
-	//LineDraw();
 	RockDraw();
+	FlagDraw();
+	Uturn_Draw();
 	Start_Count_Draw();
 	UI_Draw();
+	Sinko_Draw();
 	
 }
 
@@ -123,14 +143,16 @@ void Game_Finalize(void)
 	// --------------------------------
 	PlayerUninit();
 	RockUninit();
+	FlagUninit();
 	Grid_Uninit();
 	Map_Uninit();
 	Start_Count_Uninit();
 	UI_Uninit();
 	//GoolUninit();
-	//BrocksUninit();
-	//FlagsUninit();
 	Game_Manager_Uninit();
-	//PlayerUninit();
-	//LineUninit();
+	Sky_Dome_Uninit();
+	MapAreaUninit();
+	Colli_Draw_Uninit();
+	Sinko_Uninit();
+	Uturn_Uninit();
 }

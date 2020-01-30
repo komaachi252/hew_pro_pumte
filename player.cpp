@@ -12,62 +12,169 @@
 #include"model.h"
 //#include"Bullet.h"
 //#include"shadow.h"
-//\#include"debugPrintf.h"
+//#include"debugPrintf.h"
 #include"debug_font.h"
 #include"rock.h"
 #include"Input2.h"
+#include "map.h"
+#include "MapArea.h"
+#include "collision_draw.h"
+#include "data.h"
+#include "model_tree.h"
+#include "effect.h"
+#include "start_count.h"
+#include "sound.h"
+
+static bool ddd_now, ddd_past;
+static Player* g_player;
+static Model_Tree g_play2[3] = {};
+static Model_Tree g_armored_vehicle[5] = {};
 Player::~Player()
 {
 	coliSpheres->Delete();
+	if (m_mode == PLAY_MODE::MODE_2) {
+		Model_Tree_Destroy(g_play2, 3);
+	}
+	else {
+		Model_Tree_Destroy(g_armored_vehicle, 5);
+	}
+	delete[] m_is_frame;
+	delete[] m_is_used;
 }
 
 void Player::Init(void)
 {
 	//モデル系//////////////////////////
-	modelId = Model_Load("ft.x");
-	/*
-	modelId = SetLordModel("MyAccet\\model\\boat\\ft.x");
-	ModelLord(modelId, "boat\\");
-	*/
+	m_mode = Get_Mode();
+	if (m_mode == PLAY_MODE::MODE_2) {
+		m_is_used = new bool[2];
+		for (int i = 0; i < 2; i++) {
+			m_is_used[i] = false;
+		}
+
+		m_is_frame = new int[2];
+		for (int i = 0; i < 2; i++) {
+			m_is_frame[i] = 0;
+		}
+		g_play2[0].name = "wide2.x";
+		D3DXMATRIX mtx;
+		D3DXMatrixIdentity(&mtx);
+		g_play2[0].mtx = mtx;
+		g_play2[0].offset = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+		g_play2[0].initrot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+		g_play2[0].position = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+		g_play2[0].rotation = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+		g_play2[0].child_index = 1;
+		g_play2[0].sibling_index = -1;
+		g_play2[0].model_id = -1;
+
+		g_play2[1].name = "tete.x";
+		g_play2[1].mtx = mtx;
+		g_play2[1].offset = D3DXVECTOR3(-0.5f, 0.88f, 0.4f);
+		g_play2[1].initrot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+		g_play2[1].position = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+		g_play2[1].rotation = D3DXVECTOR3(1.0f, 0.0f, 0.0f);
+		g_play2[1].child_index = -1;
+		g_play2[1].sibling_index = 2;
+		g_play2[1].model_id = -1;
+
+		g_play2[2].name = "tete2.x";
+		g_play2[2].mtx = mtx;
+		g_play2[2].offset = D3DXVECTOR3(0.5f, 0.88f, 0.4f);
+		g_play2[2].initrot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+		g_play2[2].position = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+		g_play2[2].rotation = D3DXVECTOR3(1.0f, 0.0f, 0.0f);
+		g_play2[2].child_index = -1;
+		g_play2[2].sibling_index = -1;
+		g_play2[2].model_id = -1;
+
+		Model_Tree_Init(g_play2, 3);
+	}
+	else {
+		m_is_used = new bool[4];
+		for (int i = 0; i < 4; i++) {
+			m_is_used[i] = false;
+		}
+
+		m_is_frame = new int[4];
+		for (int i = 0; i < 4; i++) {
+			m_is_frame[i] = 0;
+		}
+
+		g_armored_vehicle[0].name = "wide4.x";
+		D3DXMATRIX mtx;
+		D3DXMatrixIdentity(&mtx);
+		g_armored_vehicle[0].mtx = mtx;
+		g_armored_vehicle[0].offset = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+		g_armored_vehicle[0].initrot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+		g_armored_vehicle[0].position = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+		g_armored_vehicle[0].rotation = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+		g_armored_vehicle[0].child_index = 1;
+		g_armored_vehicle[0].sibling_index = -1;
+		g_armored_vehicle[0].model_id = -1;
+
+		g_armored_vehicle[1].name = "tete.x";
+		g_armored_vehicle[1].mtx = mtx;
+		g_armored_vehicle[1].offset = D3DXVECTOR3(-0.5f, 0.78f, 0.5f);
+		g_armored_vehicle[1].initrot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+		g_armored_vehicle[1].position = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+		g_armored_vehicle[1].rotation = D3DXVECTOR3(1.0f, 0.0f, 0.0f);
+		g_armored_vehicle[1].child_index = -1;
+		g_armored_vehicle[1].sibling_index = 2;
+		g_armored_vehicle[1].model_id = -1;
+
+		g_armored_vehicle[2].name = "tete2.x";
+		g_armored_vehicle[2].mtx = mtx;
+		g_armored_vehicle[2].offset = D3DXVECTOR3(0.5f, 0.78f, 0.5f);
+		g_armored_vehicle[2].initrot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+		g_armored_vehicle[2].position = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+		g_armored_vehicle[2].rotation = D3DXVECTOR3(1.0f, 0.0f, 0.0f);
+		g_armored_vehicle[2].child_index = -1;
+		g_armored_vehicle[2].sibling_index = 3;
+		g_armored_vehicle[2].model_id = -1;
+
+		g_armored_vehicle[3].name = "tete3.x";
+		g_armored_vehicle[3].mtx = mtx;
+		g_armored_vehicle[3].offset = D3DXVECTOR3(-0.5f, 0.78f, -0.5f);
+		g_armored_vehicle[3].initrot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+		g_armored_vehicle[3].position = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+		g_armored_vehicle[3].rotation = D3DXVECTOR3(1.0f, 0.0f, 0.0f);
+		g_armored_vehicle[3].child_index = -1;
+		g_armored_vehicle[3].sibling_index = 4;
+		g_armored_vehicle[3].model_id = -1;
+
+		g_armored_vehicle[4].name = "tete4.x";
+		g_armored_vehicle[4].mtx = mtx;
+		g_armored_vehicle[4].offset = D3DXVECTOR3(0.5f, 0.78f, -0.5f);
+		g_armored_vehicle[4].initrot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+		g_armored_vehicle[4].position = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+		g_armored_vehicle[4].rotation = D3DXVECTOR3(1.0f, 0.0f, 0.0f);
+		g_armored_vehicle[4].child_index = -1;
+		g_armored_vehicle[4].sibling_index = -1;
+		g_armored_vehicle[4].model_id = -1;
+
+		Model_Tree_Init(g_armored_vehicle, 5);
+
+	}
+	m_effect = Effect_Load(L"drill.efk");
+
+	m_effect_frame = 0;
+	//モデル系//////////////////////////
 	////////////////////////////////////_
 
 	//座標系////////////////////////////
-	pos = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-	speedMax = 0.1f;
+	pos = D3DXVECTOR3(0.0f, 0.7f, 0.0f);
+	pastPos = pos;
+	speedMax = 0.2f;
 	rotSpeed = D3DXToRadian(0.85f);
 	rotAcceralation = 0.0f;
 
-	scale = 1.0;
+	scale = 0.4f;
 
-	vecFront = D3DXVECTOR3(0.0f, 1.0f, 1.0f);
-	//前方向ベクトルが０の値のベクトル成分の単位ベクトル、こんかいはX成分
+	vecFront = D3DXVECTOR3(0.0f, 0.0f, 1.0f);
 	vecRight = D3DXVECTOR3(1.0f, 0.0f, 0.0f);
-	//前方向ベクトルを正規化
-	D3DXVec3Normalize(&vecFront, &vecFront);
-	//外積で上ベクトル
-	D3DXVec3Cross(&vecUp, &vecFront, &vecRight);
-	D3DXVec3Normalize(&vecUp, &vecUp);
-
-	D3DXMATRIX mtxRot;
-
-	D3DXMatrixRotationAxis(&mtxRot, &vecRight, D3DXToRadian(45));
-	D3DXVec3TransformNormal(&vecFront, &vecFront, &mtxRot);
-	D3DXVec3TransformNormal(&vecRight, &vecRight, &mtxRot);
-	vecFront.y = 0.0f;
-	vecRight.y = 0.0f;
-	D3DXVec3Normalize(&vecFront, &vecFront);
-	D3DXVec3Normalize(&vecRight, &vecRight);
-
-
-	angleY = atan2(vecFront.z, vecFront.x);
-
-	D3DXMatrixRotationY(&mtxRot, angleY + D3DXToRadian(-90));
-	D3DXVec3TransformNormal(&vecFront, &vecFront, &mtxRot);
-	D3DXVec3TransformNormal(&vecRight, &vecRight, &mtxRot);
-	D3DXVec3TransformNormal(&vecUp, &vecUp, &mtxRot);
-
-	AngleUpdate();
-
+	vecUp = D3DXVECTOR3(0.0f, 1.0f, 0.0f);
+	
 	//座標系////////////////////////////_
 
 	//行列
@@ -87,15 +194,18 @@ void Player::Init(void)
 
 	//当たり判定系//////////////////////
 
-	coliSpheres = new Spheres(new Sphere(0.5, D3DXVECTOR3(-0.5f, 0.0f, 0.0f), &mtxWorld));
-	coliSpheres->AddSphare(new Sphere(0.5, D3DXVECTOR3(0.5f, 0.0f, 0.0f), &mtxWorld));
-	coliSpheres->AddSphare(new Sphere(0.5, D3DXVECTOR3(0.0f, 0.0f, 1.0f), &mtxWorld));
-	coliSpheres->AddSphare(new Sphere(0.5, D3DXVECTOR3(0.0f, 0.0f, 2.0f), &mtxWorld));
-	coliSpheres->AddSphare(new Sphere(0.5, D3DXVECTOR3(0.0f, 0.0f, 3.0f), &mtxWorld));
-	coliSpheres->AddSphare(new Sphere(0.5, D3DXVECTOR3(0.0f, 0.0f, -1.0f), &mtxWorld));
-	coliSpheres->AddSphare(new Sphere(0.5, D3DXVECTOR3(0.0f, 0.0f, -2.0f), &mtxWorld));
-	coliSpheres->AddSphare(new Sphere(0.5, D3DXVECTOR3(0.0f, 0.0f, -3.0f), &mtxWorld));
+	coliSpheres = new Spheres(new Sphere(0.3, D3DXVECTOR3(-0.5f, 0.0f, 0.0f), &mtxWorld));
+	coliSpheres->AddSphare(new Sphere(0.3, D3DXVECTOR3(0.5f, 0.0f, 0.0f), &mtxWorld));
+	coliSpheres->AddSphare(new Sphere(0.3, D3DXVECTOR3(0.0f, 0.0f, 1.0f), &mtxWorld));
+	coliSpheres->AddSphare(new Sphere(0.3, D3DXVECTOR3(0.0f, 0.0f, 2.0f), &mtxWorld));
+	coliSpheres->AddSphare(new Sphere(0.3, D3DXVECTOR3(0.0f, 0.0f, 3.0f), &mtxWorld));
+	coliSpheres->AddSphare(new Sphere(0.3, D3DXVECTOR3(0.0f, 0.0f, -1.0f), &mtxWorld));
+	coliSpheres->AddSphare(new Sphere(0.3, D3DXVECTOR3(0.0f, 0.0f, -2.0f), &mtxWorld));
+	coliSpheres->AddSphare(new Sphere(0.3, D3DXVECTOR3(0.0f, 0.0f, -3.0f), &mtxWorld));
+	//Spheres *r = RocksGetColi();
+	//Spheres *M = MapAreasGetColi();
 	IsRock = new ForcusSpheresIsSpheres(coliSpheres, RocksGetColi());
+	IsMapArea = new ForcusSpheresIsSpheres(coliSpheres, MapAreasGetColi());
 
 	//当たり判定系//////////////////////_		
 
@@ -107,7 +217,7 @@ void Player::Draw(void)
 	LPDIRECT3DDEVICE9 Device = GetDevice();
 	Device->SetFVF(FVF_PLAYER);
 	Device->SetTexture(0, NULL);
-	Device->SetRenderState(D3DRS_LIGHTING, FALSE);
+	//Device->SetRenderState(D3DRS_LIGHTING, FALSE);
 
 	////アルファテスト（ブレンドとは違う）//終わったらオフにする
 	//g_sampleDevice->SetRenderState(D3DRS_ALPHATESTENABLE, TRUE);
@@ -118,42 +228,136 @@ void Player::Draw(void)
 	//
 	//g_sampleDevice->SetRenderState(D3DRS_ZENABLE, FALSE);
 	//g_sampleDevice->SetRenderState(D3DRS_ZWRITEENABLE, FALSE);
+	D3DXVECTOR3 colli[8];
+	colli[0] = D3DXVECTOR3(-0.5f, 0.0f, 0.0f);
+	colli[1] = D3DXVECTOR3(0.5f, 0.0f, 0.0f);
+	colli[2] = D3DXVECTOR3(0.0f, 0.0f, 1.0f);
+	colli[3] = D3DXVECTOR3(0.0f, 0.0f, 2.0f);
+	colli[4] = D3DXVECTOR3(0.0f, 0.0f, 3.0f);
+	colli[5] = D3DXVECTOR3(0.0f, 0.0f, -1.0f);
+	colli[6] = D3DXVECTOR3(0.0f, 0.0f, -2.0f);
+	colli[7] = D3DXVECTOR3(0.0f, 0.0f, -3.0f);
 
+	D3DXVECTOR3 pos(mtxWorld._41, mtxWorld._42, mtxWorld._43);
+	for (int i = 0; i < 8; i++) {
+		D3DXVec3TransformNormal(&colli[i], &colli[i], &mtxWorld);
+		colli[i] += pos;
+	}
+	float rad = 0.3f;
 
+	if (m_mode == PLAY_MODE::MODE_2) {
+		Model_Tree_Draw(g_play2, &mtxWorld);
+	}
+	else {
+		Model_Tree_Draw(g_armored_vehicle, &mtxWorld);
+	}
 
+	DebugFont_Draw(10, 400, "x:%3.3f y:%3.3f z:%3.3f, ", mtxWorld._41, mtxWorld._42, mtxWorld._43);
+	//DebugFont_Draw(10, 400, "Rocknow:%d, ", IsRock->focus.now);
+	if (IsMapArea->focus.now && !IsMapArea->focus.past) {
+		//DebugFont_Draw(10, 440, "Areanoe:%d,Areapast:%d, ", IsMapArea->focus.now, IsMapArea->focus.past);
+	}
+	if (ddd_now != IsMapArea->focus.now) {
 
-	//ModelDraw(modelId, mtxWorld);
+		DebugFont_Draw(10, 460, "Areanow:%d, ", 1);
+	}
 
-	Model_Draw(modelId, mtxWorld);
-};
+	if (ddd_past != IsMapArea->focus.past) {
+
+		DebugFont_Draw(10, 480, "Areanow:%d, ", 1);
+	}
+	m_effect_frame++;
+	if (m_effect_frame <= 240) {
+		//Effect_Draw(m_effect, mtxWorld);
+	}
+
+}
+
 void Player::Uninit(void)
 {
 
-};
+}
 void Player::Update(void)
 {
-
+	if(!Is_Start_Count_End()){
+	return;
+	}
 
 
 	camera *cam = CameraGet();
 
 
 	D3DXVECTOR3 vecDir = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-	if (GetAxisX(0, true) + GetAxisY(0, true) + GetAxisZ(0, true) > 1200)
-	{
-		if (GetAxisX(0, true) + GetAxisY(0, true) + GetAxisZ(0, true) > GetAxisX(1, true) + GetAxisY(1, true) + GetAxisZ(1, true))//右のほうが強いなら
+	if (m_mode == PLAY_MODE::MODE_2) {
+		if (GetAxisX(0, true) + GetAxisY(0, true) + GetAxisZ(0, true) > 1200)
 		{
-			vecDir += cam->vec_right;
-
-	
+			if (GetAxisX(0, true) + GetAxisY(0, true) + GetAxisZ(0, true) > GetAxisX(1, true) + GetAxisY(1, true) + GetAxisZ(1, true))//右のほうが強いなら
+			{
+				if (!m_is_used[0]) {
+					PlaySound(SOUND_LABEL_SE_SPLASH);
+				}
+				vecDir += cam->vec_right;
+				Row(0);
+			}
+		}
+		if (GetAxisX(1, true) + GetAxisY(1, true) + GetAxisZ(1, true) > 1200)
+		{
+			if (GetAxisX(0, true) + GetAxisY(0, true) + GetAxisZ(0, true) < GetAxisX(1, true) + GetAxisY(1, true) + GetAxisZ(1, true))//左のほうが強いなら
+			{
+				if (!m_is_used[1]) {
+					PlaySound(SOUND_LABEL_SE_SPLASH);
+				}
+				vecDir += -cam->vec_right;
+				Row(1);
+			}
 		}
 	}
-	if (GetAxisX(1, true) + GetAxisY(1, true) + GetAxisZ(1, true) > 1200)
-	{
-		if (GetAxisX(0, true) + GetAxisY(0, true) + GetAxisZ(0, true) < GetAxisX(1, true) + GetAxisY(1, true) + GetAxisZ(1, true))//左のほうが強いなら
+	else {
+		if (GetAxisX(0, true) + GetAxisY(0, true) + GetAxisZ(0, true) > 1200)
 		{
-			vecDir += -cam->vec_right;
+			if (GetAxisX(0, true) + GetAxisY(0, true) + GetAxisZ(0, true) > GetAxisX(1, true) + GetAxisY(1, true) + GetAxisZ(1, true))//右のほうが強いなら
+			{
+				if (!m_is_used[0]) {
+					PlaySound(SOUND_LABEL_SE_SPLASH);
+				}
+				vecDir += cam->vec_right;
+				Row(0);
+			}
 		}
+		if (GetAxisX(1, true) + GetAxisY(1, true) + GetAxisZ(1, true) > 1200)
+		{
+			if (GetAxisX(0, true) + GetAxisY(0, true) + GetAxisZ(0, true) < GetAxisX(1, true) + GetAxisY(1, true) + GetAxisZ(1, true))//左のほうが強いなら
+			{
+				if (!m_is_used[1]) {
+					PlaySound(SOUND_LABEL_SE_SPLASH);
+				}
+				vecDir += -cam->vec_right;
+				Row(1);
+			}
+		}
+		if (GetAxisX(2, true) + GetAxisY(2, true) + GetAxisZ(2, true) > 1200)
+		{
+			if (GetAxisX(2, true) + GetAxisY(2, true) + GetAxisZ(2, true) > GetAxisX(3, true) + GetAxisY(3, true) + GetAxisZ(3, true))//右のほうが強いなら
+			{
+				if (!m_is_used[2]) {
+					PlaySound(SOUND_LABEL_SE_SPLASH);
+				}
+				vecDir += cam->vec_right;
+				Row(2);
+			}
+		}
+		if (GetAxisX(3, true) + GetAxisY(3, true) + GetAxisZ(3, true) > 1200)
+		{
+			if (GetAxisX(2, true) + GetAxisY(2, true) + GetAxisZ(2, true) < GetAxisX(3, true) + GetAxisY(3, true) + GetAxisZ(3, true))//左のほうが強いなら
+			{
+				if (!m_is_used[3]) {
+					PlaySound(SOUND_LABEL_SE_SPLASH);
+				}
+				vecDir += -cam->vec_right;
+				Row(3);
+			}
+		}
+
 	}
 	
 	
@@ -165,13 +369,21 @@ void Player::Update(void)
 	}
 	if (Keyboard_IsPress(DIK_RIGHTARROW))
 	{
+		if (!m_is_used[0]) {
+			PlaySound(SOUND_LABEL_SE_SPLASH);
+		}
 		vecDir += cam->vec_right;
-	
+		Row(0);
+
 		acceralation += 0.01f;
 	}
 	if (Keyboard_IsPress(DIK_LEFTARROW))
 	{
+		if (!m_is_used[1]) {
+			PlaySound(SOUND_LABEL_SE_SPLASH);
+		}
 		vecDir += -cam->vec_right;
+		Row(1);
 	
 		acceralation += 0.01f;
 	}
@@ -183,16 +395,19 @@ void Player::Update(void)
 	}
 	if (Keyboard_IsPress(DIK_W))
 	{
-		pos.y += 0.075f;
+		//pos.y += 0.075f;
 	}
 	if (Keyboard_IsPress(DIK_S))
 	{
-		pos.y += -0.075f;
+		//pos.y += -0.075f;
 	}
+
+	pos.y = Player_Y() + 0.3f;
 
 	if (vecDir != D3DXVECTOR3(0.0f, 0.0f, 0.0f))
 	{
-		acceralation += 0.01f;
+		//acceralation = 0.1f;
+		acceralation += 0.001f;
 
 		//正規化
 		D3DXVec3Normalize(&vecFront, &vecFront);
@@ -261,18 +476,21 @@ void Player::Update(void)
 	//移動処理
 	D3DXVECTOR3 vecmove;
 	Spheres* now = coliSpheres;
-
-	if (IsRock->focus.now == true)
-	{
-
-		if (IsRock->focus.past == false)
+	
+	if (((IsRock->focus.now==true) && (IsRock->focus.past==false)) || ((IsMapArea->focus.now==true) && (IsMapArea->focus.past==false))) {
+		if (acceralation>0)
 		{
-			//当たっているなら
-			acceralation *= -0.5f;
-			speed *= -1;
+			acceralation *= -2;
 		}
-	}
+		else
+		{
+			acceralation *= 2;
+		}
+		speed *= -2.0f;
+		PlaySound(SOUND_LABEL_SE_HIT1);
 
+	}
+	
 	D3DXMATRIX mtxRot;
 	D3DXMatrixRotationY(&mtxRot, angleY);
 	D3DXVECTOR3 vecpos;
@@ -294,7 +512,9 @@ void Player::Update(void)
 
 			if (now->next == nullptr)
 			{
-				pos += vecFront * speed;
+				float angleB = 1.0f + (-1.0f*(angleX / D3DXToRadian(90)));
+
+				pos += vecFront * speed * angleB;
 				endFlag = true;
 			}
 			else
@@ -302,15 +522,7 @@ void Player::Update(void)
 
 				now = now->next;
 			}
-			//}
-			//else
-			//{
-			//
-			//	speed *= 0.5f;
-			//	acceralation *= 0.5f;
-			//	endFlag = true;
-			//
-			//}
+		
 
 		}
 	}
@@ -329,7 +541,6 @@ void Player::Update(void)
 		speed = -speedMax;
 	}
 
-
 	//行列
 	D3DXMATRIX mtxScal, mtxTranslation, mtxRotationY, mtxRotationX;
 
@@ -344,51 +555,153 @@ void Player::Update(void)
 
 	AngleUpdate();
 
-
 	D3DXMatrixRotationY(&mtxRotationY, angleY);
 	D3DXMatrixRotationAxis(&mtxRotationX, &vecRight, -angleX);
 
 	//スケーリング＊ローテーション＊トランスレーション
 	mtxWorld = mtxScal * mtxRotationY *mtxRotationX* mtxTranslation;
+
 	coliSpheres->Update();
 
+	pastPos = pos;
+
+	D3DXMATRIX mtx_rot, mtx_rot_inv;
+	float angle = 0.2f;
+	D3DXMatrixRotationY(&mtx_rot, angle);
+	D3DXMatrixRotationY(&mtx_rot_inv, -angle);
+
+	//	入力状態の更新
+	if (m_mode == PLAY_MODE::MODE_2) {
+		for (int i = 0; i < 2; i++) {
+			if (m_is_used[i]) {
+				switch (i)
+				{
+				case 0:
+					D3DXVec3TransformNormal(&g_play2[1].rotation, &g_play2[1].rotation, &mtx_rot);
+					break;
+				case 1:
+					D3DXVec3TransformNormal(&g_play2[2].rotation, &g_play2[2].rotation, &mtx_rot_inv);
+					break;
+				default:
+					break;
+				}
+				m_is_frame[i]++;
+				if (m_is_frame[i] >= 31) {
+					m_is_used[i] = false;
+					m_is_frame[i] = 0;
+					g_play2[i + 1].rotation = D3DXVECTOR3(1.0f, 0.0f, 0.0f);
+				}
+			}
+		}
+	}
+	else {
+		for (int i = 0; i < 4; i++) {
+			if (m_is_used[i]) {
+				switch (i)
+				{
+				case 0:
+					D3DXVec3TransformNormal(&g_armored_vehicle[1].rotation, &g_armored_vehicle[1].rotation, &mtx_rot);
+					break;
+				case 1:
+					D3DXVec3TransformNormal(&g_armored_vehicle[2].rotation, &g_armored_vehicle[2].rotation, &mtx_rot_inv);
+					break;
+				case 2:
+					D3DXVec3TransformNormal(&g_armored_vehicle[3].rotation, &g_armored_vehicle[3].rotation, &mtx_rot);
+					break;
+				case 3:
+					D3DXVec3TransformNormal(&g_armored_vehicle[4].rotation, &g_armored_vehicle[4].rotation, &mtx_rot_inv);
+					break;
+				default:
+					break;
+				}
+				m_is_frame[i]++;
+				if (m_is_frame[i] >= 31) {
+					m_is_used[i] = false;
+					g_armored_vehicle[i + 1].rotation = D3DXVECTOR3(1.0f, 0.0f, 0.0f);
+				}
+			}
+		}
+	}
 };
+
 void Player::AngleUpdate()
 {
-	if (vecUp.y > 0)
+	D3DXVECTOR3 distance = pastPos - pos;
+	
+	D3DXVec3Normalize(&distance, &distance);
+
+	float distAngleX = -atan2(distance.y, Vec2Lenth(D3DXVECTOR2(distance.x, distance.z)));
+	float distAngleY = atan2(vecFront.x, vecFront.z);
+	if (speed>0)
 	{
-		angleX = atan2(vecFront.y, Vec2Lenth(-D3DXVECTOR2(vecFront.x, vecFront.z)));
+		if (distAngleX - angleX  > D3DXToRadian(1.5f))
+		{
+			angleX += D3DXToRadian(1.5f);
+		}
+		else if (angleX - distAngleX > D3DXToRadian(1.5f))
+		{
+			angleX -= D3DXToRadian(1.5f);
+		}
+		else
+		{
+			angleX = distAngleX;
+		}
 	}
 	else
 	{
-
-		angleX = atan2(vecFront.y, -Vec2Lenth(-D3DXVECTOR2(vecFront.x, vecFront.z)));
+		
 	}
-	angleY = atan2(vecFront.x, vecFront.z);
+	angleY = distAngleY;
 };
 
-Player g_player;
 void PlayerInit(void)
 {
-	g_player.Init();
+	g_player = new Player();
+	g_player->Init();
 }
 
 void PlayerDraw(void)
 {
-	g_player.Draw();
+	g_player->Draw();
 	
 }
 
 void PlayerUninit(void)
 {
-	g_player.Uninit();
+	delete g_player;
 }
 
 void PlayerUpdate(void)
 {
-	g_player.Update();
+	g_player->Update();
 }
 Player* PlayerGet()
 {
-	return &g_player;
+	return g_player;
+}
+
+D3DXVECTOR3* Get_Player_Front(void)
+{
+	return &g_player->vecFront;
+}
+
+D3DXVECTOR3* Get_Player_Pos(void)
+{
+	return &g_player->pos;
+}
+
+void Set_Player_Mode(PLAY_MODE mode)
+{
+	g_player->Set_Mode(mode);
+}
+void Player::Set_Mode(PLAY_MODE mode)
+{
+	m_mode = mode;
+}
+void Player::Row(int index)
+{
+	if (!m_is_used[index]) {
+		m_is_used[index] = true;
+		m_is_frame[index] = 0;
+	}
 }

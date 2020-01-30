@@ -133,5 +133,5 @@ void Set_Scene(SCENE scene)
 	default:
 		break;
 	}
-	g_scene = scene;
+ 	g_scene = scene;
 }

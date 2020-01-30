@@ -13,6 +13,7 @@ void UI_Init(void);
 void UI_Uninit(void);
 void UI_Update(void);
 void UI_Draw(void);
+double Get_Time(void);
 
 
 

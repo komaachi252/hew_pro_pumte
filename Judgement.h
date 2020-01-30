@@ -51,7 +51,6 @@ public:
 		if (next==nullptr)
 		{
 			next = new Spheres(add);
-			next->next = nullptr;
 			return;
 		}
 		else
@@ -65,12 +64,6 @@ public:
 	void Update()
 	{
 
-
-		//当たり判定のローカル座標＊プレイヤーのワールド変換
-		D3DXMATRIX mtx = me->mtxT * (*me->mtxW);
-		D3DXVECTOR3 upPosA(mtx._41, mtx._42, mtx._43);
-
-		DebugLineSet(upPosA,me->lenth);
 
 		
 		if (next == nullptr)
@@ -137,6 +130,7 @@ public:
 	Sphere *B;
 
 	void Update();
+	
 	ForcusSpheresIsSphere(Spheres *a, Sphere *b);
 	~ForcusSpheresIsSphere();
 private:
@@ -150,6 +144,7 @@ public:
 	Spheres *B;
 
 	void Update();
+	void Update(int b_num);
 	ForcusSpheresIsSpheres(Spheres *a, Spheres *b);
 	~ForcusSpheresIsSpheres();
 

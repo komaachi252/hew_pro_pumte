@@ -10,7 +10,7 @@
 #include "input.h"
 #include "fade.h"
 #include "scene.h"
-
+#include "sound.h"
 #include <d3d9.h>
 
 //™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™
@@ -84,6 +84,7 @@ Title_Manager::~Title_Manager(void)
 void Title_Manager::Update(void)
 {
 	if (Keyboard_IsTrigger(DIK_RETURN) && !m_is_fade) {
+		PlaySound(SOUND_LABEL_SE_TITLE);
 		Fade_Start(FADE_FRAME, FADE_COLOR, true);
 		m_is_fade = true;
 	}

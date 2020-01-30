@@ -29,6 +29,8 @@ private:
 	int m_tex;
 	int m_press_tex;
 	int m_logo_tex;
+	int m_alpha;
+	float m_sin;
 public:
 	Title_Logo(void);
 	~Title_Logo(void);
@@ -85,6 +87,8 @@ Title_Logo::Title_Logo(void)
 
 	//  中心座標
 	m_pos = D3DXVECTOR2(SCREEN_WIDTH * 0.5f, SCREEN_HEIGHT * 0.5f);
+	m_alpha = 255;
+	m_sin = 0.0f;
 }
 
 
@@ -97,6 +101,8 @@ Title_Logo::Title_Logo(void)
 Title_Logo::~Title_Logo(void)
 {
 	Texture_Destroy(&m_tex, 1);
+	Texture_Destroy(&m_logo_tex, 1);
+	Texture_Destroy(&m_press_tex, 1);
 }
 
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
@@ -105,6 +111,9 @@ Title_Logo::~Title_Logo(void)
 void Title_Logo::Update(void)
 {
 	//  座標変えるのかなー
+	m_sin += 0.1f;
+
+	m_alpha = (sin(m_sin) + 1) * 127 + 1;
 }
 
 //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
@@ -120,7 +129,7 @@ void Title_Logo::Draw(void)
 
 
 	Sprite_Draw(m_logo_tex, 0, 0);
-	Sprite_Draw(m_press_tex, 320, 400);
+	Sprite_DrawAlpha(m_press_tex, 320, 400, TITLE_LOGO_WIDTH * 0.5f, TITLE_LOGO_HEIGHT * 0.5f, m_alpha);
 
 
 }
