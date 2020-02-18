@@ -140,7 +140,6 @@ static Flags *g_flags;
 static int g_effect_id;
 void FlagInit()
 {
-	Flags *a;
 	//1
 	g_flags = new Flags(new Flag(0.0f, D3DXToRadian(90), 3.0f, D3DXVECTOR3(0.0f, 0.0f, 25.0f)));
 	//2
